@@ -7,6 +7,10 @@ on:
         description: 'Test scenario tags'
         required: false
         type: boolean
+      testando:
+        description: 'Find variable'
+        required: true
+        type: string       
 
 env:
   AZURE_CONTAINER_REGISTRY: "your-azure-container-registry"
