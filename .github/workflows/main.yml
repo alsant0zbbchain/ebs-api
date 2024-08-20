@@ -12,14 +12,7 @@ on:
         required: true
         type: string       
 
-env:
-  AZURE_CONTAINER_REGISTRY: "your-azure-container-registry"
-  CONTAINER_NAME: "your-container-name"
-  RESOURCE_GROUP: "your-resource-group"
-  CLUSTER_NAME: "your-cluster-name"
-  DEPLOYMENT_MANIFEST_PATH: "your-deployment-manifest-path"
-
-run-name: ${{ inputs.identifier }}
+run-name: Deploy to ${{ inputs.deploy_target }} by @${{ github.actor }}
 
 jobs:
     steps:
