@@ -12,8 +12,6 @@ on:
         required: true
         type: string       
 
-run-name: Deploy to ${{ inputs.deploy_target }} by @${{ github.actor }}
-
 jobs:
     steps:
       - name: Set environment variable
