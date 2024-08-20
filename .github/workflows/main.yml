@@ -7,17 +7,25 @@ on:
         description: 'Test scenario tags'
         required: false
         type: boolean
-      identifier:
+      testando:
         description: 'Find variable'
         required: true
         type: string       
 
+env:
+  AZURE_CONTAINER_REGISTRY: "your-azure-container-registry"
+  CONTAINER_NAME: "your-container-name"
+  RESOURCE_GROUP: "your-resource-group"
+  CLUSTER_NAME: "your-cluster-name"
+  DEPLOYMENT_MANIFEST_PATH: "your-deployment-manifest-path"
+
 jobs:
+  buildImage:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
     steps:
-      - name: Set environment variable
-        run: echo "MY_ENV_VAR=${{ github.event.inputs.testando }}" >> $GITHUB_ENV    
-      - name: Output Inputs
-        run: echo "${{ toJSON(github.event.inputs) }}"        
       # Checks out the repository this file is in
       - uses: actions/checkout@v4
 
