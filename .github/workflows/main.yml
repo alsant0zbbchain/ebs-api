@@ -1,4 +1,5 @@
 name: Create Test
+run-name: ${{ inputs.identifier }}
 
 on:
   workflow_dispatch:
@@ -7,8 +8,8 @@ on:
         description: 'Test scenario tags'
         required: false
         type: boolean
-      testando:
-        description: 'Find variable'
+      identifier:
+        description: 'Variable that represents the release identifier'
         required: true
         type: string       
 
