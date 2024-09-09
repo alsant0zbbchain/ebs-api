@@ -13,7 +13,7 @@ jobs:
   display-variables:
     name: "Teste"
     runs-on: ubuntu-latest
-    environment: ${{ vars.ENVIRONMENT_STAGE }}
+    environment: dev
     steps:
     - name: Use variables
       run: |
@@ -31,6 +31,7 @@ jobs:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
+    environment: dev
     steps:
       # Checks out the repository this file is in
       - uses: actions/checkout@v4
@@ -54,6 +55,7 @@ jobs:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
+    environment: dev
     needs: [buildImage]
     steps:
       # Checks out the repository this file is in
