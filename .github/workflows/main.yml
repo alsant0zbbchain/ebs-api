@@ -30,7 +30,11 @@ on:
       DNS_TYPE: 
         description: 'dns type'
         type: string     
-        default: "public"        
+        default: "public"  
+      DNS_ZONE: 
+        description: 'dns zone'
+        type: string     
+        default: "blockchainlab.network"        
       identifier:
         description: 'Variable that represents the release identifier'
         required: true
