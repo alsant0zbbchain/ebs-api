@@ -71,7 +71,7 @@ on:
         description: 'Variable that represents the release identifier'
         required: true
         type: string  
-      env:
+      ENV:
         description: 'Variable that represents the environment'
         required: true
         type: string   
