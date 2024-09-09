@@ -1,4 +1,4 @@
-name: Create Test
+name: Hyperledger Besu Network
 run-name: ${{ inputs.identifier }}
 
 on:
