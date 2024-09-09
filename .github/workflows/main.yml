@@ -30,15 +30,7 @@ on:
       DNS_TYPE: 
         description: 'dns type'
         type: string     
-        default: "public"   
-      DNS_ZONE: 
-        description: 'dns zone'
-        type: string     
-        default: "blockchainlab.network"  
-      MIN_GAS_PRICE: 
-        description: 'minimum gas price'
-        type: string     
-        default: "0"        
+        default: "public"        
       identifier:
         description: 'Variable that represents the release identifier'
         required: true
