@@ -34,7 +34,11 @@ on:
       DNS_ZONE: 
         description: 'dns zone'
         type: string     
-        default: "blockchainlab.network"        
+        default: "blockchainlab.network"   
+      LOCATION: 
+        description: 'location'
+        type: string    
+        default: ""
       identifier:
         description: 'Variable that represents the release identifier'
         required: true
