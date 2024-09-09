@@ -20,6 +20,28 @@ on:
         description: 'Component name'
         type: string  
         required: true     
+      COUNTRY: 
+        description: 'country'
+        type: string  
+      CUSTOMER_ID: 
+        description: 'customer id'
+        type: string     
+        required: true    
+      DNS_TYPE: 
+        description: 'dns type'
+        type: string     
+        default: "public"   
+      DNS_ZONE: 
+        description: 'dns zone'
+        type: string     
+        default: "blockchainlab.network"  
+      LOCATION: 
+        description: 'location'
+        type: string
+      MIN_GAS_PRICE: 
+        description: 'minimum gas price'
+        type: string     
+        default: "0"        
       identifier:
         description: 'Variable that represents the release identifier'
         required: true
