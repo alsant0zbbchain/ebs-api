@@ -49,6 +49,7 @@ on:
       NETWORK_ID: 
         description: 'network id'
         type: string           
+        required: true
       NODE_COUNT: 
         description: 'node count'
         type: string     
