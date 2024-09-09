@@ -4,23 +4,23 @@ run-name: ${{ inputs.identifier }}
 on:
   workflow_dispatch:
     inputs:
-      tags:
-        description: 'Test scenario tags'
-        required: false
-        type: boolean
       identifier:
         description: 'Variable that represents the release identifier'
         required: true
         type: string       
 
-env:
-  AZURE_CONTAINER_REGISTRY: "your-azure-container-registry"
-  CONTAINER_NAME: "your-container-name"
-  RESOURCE_GROUP: "your-resource-group"
-  CLUSTER_NAME: "your-cluster-name"
-  DEPLOYMENT_MANIFEST_PATH: "your-deployment-manifest-path"
-
 jobs:
+  display-variables:
+    name: "Teste"
+    runs-on: ubuntu-latest
+    environment: ${{ vars.ENVIRONMENT_STAGE }}
+    steps:
+    - name: Use variables
+      run: |
+        echo "branch variable : $BRANCH"
+        echo "ARTIFACT_REGISTRY variable : $ARTIFACT_REGISTRY"
+        echo "CLIENT_ID variable : $CLIENT_ID"
+        echo "secret : ${{ secrets.GITHUB_TOKEN }}"
   buildImage:
     permissions:
       contents: read
