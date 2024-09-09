@@ -35,9 +35,6 @@ on:
         description: 'dns zone'
         type: string     
         default: "blockchainlab.network"  
-      LOCATION: 
-        description: 'location'
-        type: string
       MIN_GAS_PRICE: 
         description: 'minimum gas price'
         type: string     
