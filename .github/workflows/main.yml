@@ -17,9 +17,9 @@ jobs:
     steps:
     - name: Use variables
       run: |
-        echo "branch variable : $BRANCH"
-        echo "ARTIFACT_REGISTRY variable : $ARTIFACT_REGISTRY"
-        echo "CLIENT_ID variable : $CLIENT_ID"
+        echo "branch variable : ${{ vars.BRANCH }}"
+        echo "ARTIFACT_REGISTRY variable : ${{ vars.ARTIFACT_REGISTRY }}"
+        echo "CLIENT_ID variable : ${{ vars.CLIENT_ID }}"
         echo "secret : ${{ secrets.GITHUB_TOKEN }}"
   buildImage:
     permissions:
