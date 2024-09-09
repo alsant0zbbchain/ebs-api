@@ -35,10 +35,36 @@ on:
         description: 'dns zone'
         type: string     
         default: "blockchainlab.network"   
-      LOCATION: 
-        description: 'location'
+      MIN_GAS_PRICE: 
+        description: 'minimum gas price'
+        type: string     
+        default: "0"        
+      NET_NAME: 
+        description: 'network name'
+        type: string     
+        default: "ks-net"          
+      NETWORK_ID: 
+        description: 'network id'
+        type: string           
+        required: true
+      NODE_COUNT: 
+        description: 'node count'
+        type: string     
+        default: "4"          
+      ORGANIZATION: 
+        description: 'organization'
+        type: string     
+      QUORUM_EXPLORER_IMAGE_TAG: 
+        description: 'quorum explorer image id'
+        type: string     
+        default: "8091"   
+      SUBNET_NAME: 
+        description: 'subnet name'
+        type: string     
+        default: "ks-subnet"   
+      VALIDATORS: 
+        description: 'validators'
         type: string    
-        default: ""
       identifier:
         description: 'Variable that represents the release identifier'
         required: true
