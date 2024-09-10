@@ -96,25 +96,65 @@ jobs:
     steps:
       - name: Running playbook to create namespace
         run: |
-          if [ -z "${{ env.BESU_CONSENSUS_ALG }}" ] || 
-             [ -z "${{ env.BOOTNODES }}" ] || 
-             [ -z "${{ env.COMPONENT_ID }}" ] || 
-             [ -z "${{ env.COMPONENT_NAME }}" ] || 
-             # [ -z "${{ env.COUNTRY }}" ] || 
-             [ -z "${{ env.CUSTOMER_ID }}" ] || 
-             [ -z "${{ env.DNS_TYPE }}" ] || 
-             [ -z "${{ env.DNS_ZONE }}" ] || 
-             # [ -z "${{ env.LOCATION }}" ] || 
-             [ -z "${{ env.MIN_GAS_PRICE }}" ] || 
-             [ -z "${{ env.NET_NAME }}" ] || 
-             [ -z "${{ env.NETWORK_ID }}" ] || 
-             [ -z "${{ env.NODE_COUNT }}" ] || 
-             # [ -z "${{ env.ORGANIZATION }}" ] || 
-             [ -z "${{ env.QUORUM_EXPLORER_IMAGE_TAG }}" ] || 
-             [ -z "${{ env.SUBNET_NAME }}" ] || 
-             [ -z "${{ env.VALIDATORS }}" ] || 
-             [ -z "${{ env.ENV }}" ]; then
-            echo "Error: One or more required environment variables are missing!"
+          missing_envs=""
+
+          if [ -z "${{ env.BESU_CONSENSUS_ALG }}" ]; then
+            missing_envs+=" BESU_CONSENSUS_ALG"
+          fi
+          if [ -z "${{ env.BOOTNODES }}" ]; then
+            missing_envs+=" BOOTNODES"
+          fi
+          if [ -z "${{ env.COMPONENT_ID }}" ]; then
+            missing_envs+=" COMPONENT_ID"
+          fi
+          if [ -z "${{ env.COMPONENT_NAME }}" ]; then
+            missing_envs+=" COMPONENT_NAME"
+          fi
+          if [ -z "${{ env.COUNTRY }}" ]; then
+            missing_envs+=" COUNTRY"
+          fi
+          if [ -z "${{ env.CUSTOMER_ID }}" ]; then
+            missing_envs+=" CUSTOMER_ID"
+          fi
+          if [ -z "${{ env.DNS_TYPE }}" ]; then
+            missing_envs+=" DNS_TYPE"
+          fi
+          if [ -z "${{ env.DNS_ZONE }}" ]; then
+            missing_envs+=" DNS_ZONE"
+          fi
+          if [ -z "${{ env.LOCATION }}" ]; then
+            missing_envs+=" LOCATION"
+          fi
+          if [ -z "${{ env.MIN_GAS_PRICE }}" ]; then
+            missing_envs+=" MIN_GAS_PRICE"
+          fi
+          if [ -z "${{ env.NET_NAME }}" ]; then
+            missing_envs+=" NET_NAME"
+          fi
+          if [ -z "${{ env.NETWORK_ID }}" ]; then
+            missing_envs+=" NETWORK_ID"
+          fi
+          if [ -z "${{ env.NODE_COUNT }}" ]; then
+            missing_envs+=" NODE_COUNT"
+          fi
+          if [ -z "${{ env.ORGANIZATION }}" ]; then
+            missing_envs+=" ORGANIZATION"
+          fi
+          if [ -z "${{ env.QUORUM_EXPLORER_IMAGE_TAG }}" ]; then
+            missing_envs+=" QUORUM_EXPLORER_IMAGE_TAG"
+          fi
+          if [ -z "${{ env.SUBNET_NAME }}" ]; then
+            missing_envs+=" SUBNET_NAME"
+          fi
+          if [ -z "${{ env.VALIDATORS }}" ]; then
+            missing_envs+=" VALIDATORS"
+          fi
+          if [ -z "${{ env.ENV }}" ]; then
+            missing_envs+=" ENV"
+          fi
+
+          if [ -n "$missing_envs" ]; then
+            echo "Error: The following required environment variables are missing: $missing_envs"
             exit 1
           fi
 
