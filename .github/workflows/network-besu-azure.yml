@@ -1,4 +1,4 @@
-name: Hyperledger Besu Network
+name: Hyperledger Besu Network Azure
 run-name: ${{ inputs.identifier }}
 
 on:
