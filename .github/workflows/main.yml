@@ -19,7 +19,7 @@ env:
 jobs:
   display-variables:
     name: "Teste"
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     environment: dev
     steps:
     - name: Use variables
@@ -34,7 +34,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     environment: dev
     steps:
       # Checks out the repository this file is in
