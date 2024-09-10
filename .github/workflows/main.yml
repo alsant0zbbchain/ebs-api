@@ -99,7 +99,7 @@ jobs:
       contents: read
       id-token: write
     runs-on: self-hosted
-    needs: [create-namespace:]
+    needs: [create-namespace]
     environment: dev
     steps:
       # Checks out the repository this file is in
