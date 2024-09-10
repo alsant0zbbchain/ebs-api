@@ -88,6 +88,8 @@ jobs:
     environment: dev
     steps:
       - name: Running playbook to create namespace
+        env:
+          TIER: ${{ vars.TIER }}      
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} --tags ${{ vars.TAGS }} -vvvv
@@ -97,7 +99,7 @@ jobs:
       contents: read
       id-token: write
     runs-on: self-hosted
-    needs: [checkout-anisble-pipelines]
+    needs: [create-namespace:]
     environment: dev
     steps:
       # Checks out the repository this file is in
