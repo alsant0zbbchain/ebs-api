@@ -74,11 +74,14 @@ jobs:
     environment: dev
     steps:
       - name: Checkout Azure DevOps repo
-        uses: actions/checkout@v4
-        with:
-          repository: dev.azure.com/PitangBBChain-BlockchainLab/BlockchainLab/_git/git-ebs-hyperledger-besu-ansible-gcp
-          token: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
-          ref: develop
+        env:
+          AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
+        run: |
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@dev.azure.com/PitangBBChain-BlockchainLab/BlockchainLab/_git/git-ebs-hyperledger-besu-ansible-gcp
+          cd git-ebs-hyperledger-besu-ansible-gcp
+          git checkout develop
+          ls -al .
+          echo "Cloned Azure DevOps repository"
   buildImage:
     permissions:
       contents: read
