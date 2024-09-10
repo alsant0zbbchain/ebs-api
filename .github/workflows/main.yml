@@ -40,7 +40,7 @@ jobs:
     environment: dev
     steps:
       - name: Checking BOOTNODES
-        if: ${{ BOOTNODES }} == ''
+        if: $BOOTNODES == ''
         uses: actions/github-script@v3
         with:
           script: |
