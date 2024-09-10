@@ -3,46 +3,18 @@ run-name: ${{ inputs.identifier }}
 
 on:
   workflow_dispatch:
-    inputs:         
-      BESU_CONSENSUS_ALG: 
-        description: 'Algorithm'
-        type: string            
-        default: "QBFT" 
-      BOOTNODES: 
-        description: 'Quantity'
-        type: string    
-        required: true
-      COMPONENT_ID: 
-        description: 'Component id'
-        type: string  
-        required: true
-      COMPONENT_NAME: 
-        description: 'Component name'
-        type: string  
-        required: true     
-      COUNTRY: 
-        description: 'country'
-        type: string  
-      CUSTOMER_ID: 
-        description: 'customer id'
-        type: string     
-        required: true    
-      DNS_TYPE: 
-        description: 'dns type'
-        type: string     
-        default: "public"  
-      DNS_ZONE: 
-        description: 'dns zone'
-        type: string     
-        default: "blockchainlab.network"    
+    inputs:   
       identifier:
         description: 'Variable that represents the release identifier'
         required: true
         type: string  
-      ENV:
-        description: 'Variable that represents the environment'
+      parameters:
+        description: 'Variables in json wrapped'
         required: true
-        type: string   
+env:
+  ARTIFACT_REGISTRY: ${{ fromJson(github.event.inputs.parameters).ARTIFACT_REGISTRY }}
+  BRANCH: ${{ fromJson(github.event.inputs.parameters).BRANCH }}
+  CLIENT_ID: ${{ fromJson(github.event.inputs.parameters).CLIENT_ID }}     
 
 jobs:
   display-variables:
@@ -57,9 +29,6 @@ jobs:
         echo "CLIENT_ID variable : $CLIENT_ID"
         echo "secret : $AZURE_GIT_ACCESS_TOKEN"
       env:
-        ARTIFACT_REGISTRY: ${{ vars.ARTIFACT_REGISTRY }}
-        BRANCH: ${{ vars.BRANCH }}
-        CLIENT_ID: ${{ vars.CLIENT_ID }}     
         AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
   buildImage:
     permissions:
