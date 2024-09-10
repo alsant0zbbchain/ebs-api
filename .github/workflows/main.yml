@@ -112,6 +112,7 @@ jobs:
           SUBNET_NAME: ${{ env.BESU_CONSENSUS_ALG }}
           VALIDATORS: ${{ env.BESU_CONSENSUS_ALG }}
           ENV: ${{ env.BESU_CONSENSUS_ALG }}
+          GKE: ${{ vars.GKE }}  
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} --tags ${{ vars.TAGS }} -vvvv
