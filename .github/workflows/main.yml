@@ -99,58 +99,58 @@ jobs:
           missing_envs=""
 
           if [ -z "${{ env.BESU_CONSENSUS_ALG }}" ]; then
-            missing_envs+=" BESU_CONSENSUS_ALG"
+            missing_envs+=" BESU_CONSENSUS_ALG, "
           fi
           if [ -z "${{ env.BOOTNODES }}" ]; then
-            missing_envs+=" BOOTNODES"
+            missing_envs+=" BOOTNODES, "
           fi
           if [ -z "${{ env.COMPONENT_ID }}" ]; then
-            missing_envs+=" COMPONENT_ID"
+            missing_envs+=" COMPONENT_ID, "
           fi
           if [ -z "${{ env.COMPONENT_NAME }}" ]; then
-            missing_envs+=" COMPONENT_NAME"
+            missing_envs+=" COMPONENT_NAME, "
           fi
           if [ -z "${{ env.COUNTRY }}" ]; then
-            missing_envs+=" COUNTRY"
+            missing_envs+=" COUNTRY, "
           fi
           if [ -z "${{ env.CUSTOMER_ID }}" ]; then
-            missing_envs+=" CUSTOMER_ID"
+            missing_envs+=" CUSTOMER_ID, "
           fi
           if [ -z "${{ env.DNS_TYPE }}" ]; then
-            missing_envs+=" DNS_TYPE"
+            missing_envs+=" DNS_TYPE, "
           fi
           if [ -z "${{ env.DNS_ZONE }}" ]; then
-            missing_envs+=" DNS_ZONE"
+            missing_envs+=" DNS_ZONE, "
           fi
           if [ -z "${{ env.LOCATION }}" ]; then
-            missing_envs+=" LOCATION"
+            missing_envs+=" LOCATION, "
           fi
           if [ -z "${{ env.MIN_GAS_PRICE }}" ]; then
-            missing_envs+=" MIN_GAS_PRICE"
+            missing_envs+=" MIN_GAS_PRICE, "
           fi
           if [ -z "${{ env.NET_NAME }}" ]; then
-            missing_envs+=" NET_NAME"
+            missing_envs+=" NET_NAME, "
           fi
           if [ -z "${{ env.NETWORK_ID }}" ]; then
-            missing_envs+=" NETWORK_ID"
+            missing_envs+=" NETWORK_ID, "
           fi
           if [ -z "${{ env.NODE_COUNT }}" ]; then
-            missing_envs+=" NODE_COUNT"
+            missing_envs+=" NODE_COUNT, "
           fi
           if [ -z "${{ env.ORGANIZATION }}" ]; then
-            missing_envs+=" ORGANIZATION"
+            missing_envs+=" ORGANIZATION, "
           fi
           if [ -z "${{ env.QUORUM_EXPLORER_IMAGE_TAG }}" ]; then
-            missing_envs+=" QUORUM_EXPLORER_IMAGE_TAG"
+            missing_envs+=" QUORUM_EXPLORER_IMAGE_TAG, "
           fi
           if [ -z "${{ env.SUBNET_NAME }}" ]; then
-            missing_envs+=" SUBNET_NAME"
+            missing_envs+=" SUBNET_NAME, "
           fi
           if [ -z "${{ env.VALIDATORS }}" ]; then
-            missing_envs+=" VALIDATORS"
+            missing_envs+=" VALIDATORS, "
           fi
           if [ -z "${{ env.ENV }}" ]; then
-            missing_envs+=" ENV"
+            missing_envs+=" ENV, "
           fi
 
           if [ -n "$missing_envs" ]; then
