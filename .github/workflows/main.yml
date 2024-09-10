@@ -11,6 +11,7 @@ on:
       parameters:
         description: 'Variables in json wrapped'
         required: true
+
 env:
   BESU_CONSENSUS_ALG: ${{ fromJson(github.event.inputs.parameters).BESU_CONSENSUS_ALG || 'QBFT' }}
   BOOTNODES: ${{ fromJson(github.event.inputs.parameters).BOOTNODES || '' }}
@@ -66,7 +67,8 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('NETWORK_ID is required')                 
+              core.setFailed('NETWORK_ID is required')
+
   checkout-anisble-pipelines:
     name: "checkout-ansible-pipelines"
     runs-on: self-hosted
@@ -85,6 +87,7 @@ jobs:
           cat sa-key.json
           git checkout ${{ vars.BRANCH }}
           echo "Cloned Azure DevOps repository"
+
   create-namespace:
     name: "create-namespace"
     runs-on: self-hosted
@@ -167,4 +170,3 @@ jobs:
           client-id: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
           tenant-id: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
           subscription-id: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
-
