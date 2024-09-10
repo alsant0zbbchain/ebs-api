@@ -112,7 +112,7 @@ jobs:
              # [ -z "${{ env.ORGANIZATION }}" ] || 
              [ -z "${{ env.QUORUM_EXPLORER_IMAGE_TAG }}" ] || 
              [ -z "${{ env.SUBNET_NAME }}" ] || 
-             # [ -z "${{ env.VALIDATORS }}" ] || 
+             [ -z "${{ env.VALIDATORS }}" ] || 
              [ -z "${{ env.ENV }}" ]; then
             echo "Error: One or more required environment variables are missing!"
             exit 1
