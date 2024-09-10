@@ -109,7 +109,7 @@ jobs:
              [ -z "${{ env.NET_NAME }}" ] || 
              [ -z "${{ env.NETWORK_ID }}" ] || 
              [ -z "${{ env.NODE_COUNT }}" ] || 
-             [ -z "${{ env.ORGANIZATION }}" ] || 
+             # [ -z "${{ env.ORGANIZATION }}" ] || 
              [ -z "${{ env.QUORUM_EXPLORER_IMAGE_TAG }}" ] || 
              [ -z "${{ env.SUBNET_NAME }}" ] || 
              # [ -z "${{ env.VALIDATORS }}" ] || 
