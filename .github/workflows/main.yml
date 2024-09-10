@@ -92,30 +92,63 @@ jobs:
     environment: dev
     steps:
       - name: Running playbook to create namespace
-        env:
-          TIER: ${{ vars.TIER }}  
-          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
-          BOOTNODES: ${{ env.BESU_CONSENSUS_ALG }}
-          COMPONENT_ID: ${{ env.BESU_CONSENSUS_ALG }}
-          COMPONENT_NAME: ${{ env.BESU_CONSENSUS_ALG }}
-          COUNTRY: ${{ env.BESU_CONSENSUS_ALG }}
-          CUSTOMER_ID: ${{ env.BESU_CONSENSUS_ALG }}
-          DNS_TYPE: ${{ env.BESU_CONSENSUS_ALG }}
-          DNS_ZONE: ${{ env.BESU_CONSENSUS_ALG }}
-          LOCATION: ${{ env.BESU_CONSENSUS_ALG }}
-          MIN_GAS_PRICE: ${{ env.BESU_CONSENSUS_ALG }}
-          NET_NAME: ${{ env.BESU_CONSENSUS_ALG }}
-          NETWORK_ID: ${{ env.BESU_CONSENSUS_ALG }}
-          NODE_COUNT: ${{ env.BESU_CONSENSUS_ALG }}
-          ORGANIZATION: ${{ env.BESU_CONSENSUS_ALG }}
-          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.BESU_CONSENSUS_ALG }}
-          SUBNET_NAME: ${{ env.BESU_CONSENSUS_ALG }}
-          VALIDATORS: ${{ env.BESU_CONSENSUS_ALG }}
-          ENV: ${{ env.BESU_CONSENSUS_ALG }}
         run: |
+          if [ -z "${{ env.BESU_CONSENSUS_ALG }}" ] || 
+             [ -z "${{ env.BOOTNODES }}" ] || 
+             [ -z "${{ env.COMPONENT_ID }}" ] || 
+             [ -z "${{ env.COMPONENT_NAME }}" ] || 
+             [ -z "${{ env.COUNTRY }}" ] || 
+             [ -z "${{ env.CUSTOMER_ID }}" ] || 
+             [ -z "${{ env.DNS_TYPE }}" ] || 
+             [ -z "${{ env.DNS_ZONE }}" ] || 
+             [ -z "${{ env.LOCATION }}" ] || 
+             [ -z "${{ env.MIN_GAS_PRICE }}" ] || 
+             [ -z "${{ env.NET_NAME }}" ] || 
+             [ -z "${{ env.NETWORK_ID }}" ] || 
+             [ -z "${{ env.NODE_COUNT }}" ] || 
+             [ -z "${{ env.ORGANIZATION }}" ] || 
+             [ -z "${{ env.QUORUM_EXPLORER_IMAGE_TAG }}" ] || 
+             [ -z "${{ env.SUBNET_NAME }}" ] || 
+             [ -z "${{ env.VALIDATORS }}" ] || 
+             [ -z "${{ env.ENV }}" ]; then
+            echo "Error: One or more required environment variables are missing!"
+            exit 1
+          fi
+
+            echo "Starting Ansible playbook with the following parameters:"
+            echo "BESU_CONSENSUS_ALG=${{ env.BESU_CONSENSUS_ALG }}"
+            echo "BOOTNODES=${{ env.BOOTNODES }}"
+            echo "COMPONENT_ID=${{ env.COMPONENT_ID }}"
+            echo "COMPONENT_NAME=${{ env.COMPONENT_NAME }}"
+            echo "COUNTRY=${{ env.COUNTRY }}"
+            echo "CUSTOMER_ID=${{ env.CUSTOMER_ID }}"
+            echo "DNS_TYPE=${{ env.DNS_TYPE }}"
+            echo "DNS_ZONE=${{ env.DNS_ZONE }}"
+            echo "LOCATION=${{ env.LOCATION }}"
+            echo "MIN_GAS_PRICE=${{ env.MIN_GAS_PRICE }}"
+            echo "NET_NAME=${{ env.NET_NAME }}"
+            echo "NETWORK_ID=${{ env.NETWORK_ID }}"
+            echo "NODE_COUNT=${{ env.NODE_COUNT }}"
+            echo "ORGANIZATION=${{ env.ORGANIZATION }}"
+            echo "QUORUM_EXPLORER_IMAGE_TAG=${{ env.QUORUM_EXPLORER_IMAGE_TAG }}"
+            echo "SUBNET_NAME=${{ env.SUBNET_NAME }}"
+            echo "VALIDATORS=${{ env.VALIDATORS }}"
+            echo "ENV=${{ env.ENV }}"
+
           cd ${{ vars.FOUNDATION_REPO_PATH }}
+          if [ $? -ne 0 ]; then
+            echo "Failed to change directory. Exiting pipeline."
+            exit 1
+          fi
+
           ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} --tags ${{ vars.TAGS }} -vvvv
-          echo "Cloned Azure DevOps repository"          
+          if [ $? -ne 0 ]; then
+            echo "Ansible playbook execution failed. Exiting pipeline."
+            exit 1
+          else
+            echo "Ansible playbook executed successfully. Namespace created."
+          fi
+
   buildImage:
     permissions:
       contents: read
