@@ -80,7 +80,8 @@ jobs:
           rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
           git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
           cd ${{ vars.FOUNDATION_REPO_PATH }}
-          echo ${{ secrets.SAKEY }} >> sa-key.json
+          echo "Running copy of sa-key.json"
+          echo "${{ secrets.SAKEY }}" >> sa-key.json
           git checkout ${{ vars.BRANCH }}
           echo "Cloned Azure DevOps repository"
   create-namespace:
