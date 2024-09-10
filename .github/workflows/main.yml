@@ -73,13 +73,12 @@ jobs:
     needs: [check-required-env-variables]
     environment: dev
     steps:
-      - name: Clone Azure DevOps repository
-        env:
-          AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
-        run: |
-          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@dev.azure.com/PitangBBChain-BlockchainLab/BlockchainLab/_git/git-ebs-hyperledger-besu-ansible-gcp
-          cd git-ebs-hyperledger-besu-ansible-gcp
-          echo "Cloned Azure DevOps repository"
+      - name: Checkout Azure DevOps repo
+        uses: actions/checkout@v3
+        with:
+          repository: dev.azure.com/PitangBBChain-BlockchainLab/BlockchainLab/_git/git-ebs-hyperledger-besu-ansible-gcp
+          token: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
+          ref: develop
   buildImage:
     permissions:
       contents: read
