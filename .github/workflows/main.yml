@@ -20,16 +20,16 @@ env:
   COMPONENT_NAME: ${{ fromJson(github.event.inputs.parameters).COMPONENT_NAME }}
   COUNTRY: ${{ fromJson(github.event.inputs.parameters).COUNTRY }}
   CUSTOMER_ID: ${{ fromJson(github.event.inputs.parameters).CUSTOMER_ID }}
-  DNS_TYPE: ${{ fromJson(github.event.inputs.parameters).DNS_TYPE || "public" }}
-  DNS_ZONE: ${{ fromJson(github.event.inputs.parameters).DNS_ZONE || 'blockchainlab.network' }}
+  DNS_TYPE: ${{ fromJson(github.event.inputs.parameters).DNS_TYPE }} || "public"
+  DNS_ZONE: ${{ fromJson(github.event.inputs.parameters).DNS_ZONE }} || 'blockchainlab.network'
   LOCATION: ${{ fromJson(github.event.inputs.parameters).LOCATION }}
-  MIN_GAS_PRICE: ${{ fromJson(github.event.inputs.parameters).MIN_GAS_PRICE || "0" }}
-  NET_NAME: ${{ fromJson(github.event.inputs.parameters).NET_NAME || "ks-net" }}
+  MIN_GAS_PRICE: ${{ fromJson(github.event.inputs.parameters).MIN_GAS_PRICE }} || "0"
+  NET_NAME: ${{ fromJson(github.event.inputs.parameters).NET_NAME }} || "ks-net"
   NETWORK_ID: ${{ fromJson(github.event.inputs.parameters).NETWORK_ID }}
-  NODE_COUNT: ${{ fromJson(github.event.inputs.parameters).NODE_COUNT || "4" }}
+  NODE_COUNT: ${{ fromJson(github.event.inputs.parameters).NODE_COUNT }} || "4"
   ORGANIZATION: ${{ fromJson(github.event.inputs.parameters).ORGANIZATION }}
-  QUORUM_EXPLORER_IMAGE_TAG: ${{ fromJson(github.event.inputs.parameters).QUORUM_EXPLORER_IMAGE_TAG || "8091" }}
-  SUBNET_NAME: ${{ fromJson(github.event.inputs.parameters).SUBNET_NAME || "ks-subnet" }}
+  QUORUM_EXPLORER_IMAGE_TAG: ${{ fromJson(github.event.inputs.parameters).QUORUM_EXPLORER_IMAGE_TAG }} || "8091"
+  SUBNET_NAME: ${{ fromJson(github.event.inputs.parameters).SUBNET_NAME }} || "ks-subnet"
   VALIDATORS: ${{ fromJson(github.event.inputs.parameters).VALIDATORS }}
   ENV: ${{ fromJson(github.event.inputs.parameters).ENV }}
 
