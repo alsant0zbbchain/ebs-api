@@ -89,7 +89,25 @@ jobs:
     steps:
       - name: Running playbook to create namespace
         env:
-          TIER: ${{ vars.TIER }}      
+          TIER: ${{ vars.TIER }}  
+          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
+          BOOTNODES: ${{ env.BESU_CONSENSUS_ALG }}
+          COMPONENT_ID: ${{ env.BESU_CONSENSUS_ALG }}
+          COMPONENT_NAME: ${{ env.BESU_CONSENSUS_ALG }}
+          COUNTRY: ${{ env.BESU_CONSENSUS_ALG }}
+          CUSTOMER_ID: ${{ env.BESU_CONSENSUS_ALG }}
+          DNS_TYPE: ${{ env.BESU_CONSENSUS_ALG }}
+          DNS_ZONE: ${{ env.BESU_CONSENSUS_ALG }}
+          LOCATION: ${{ env.BESU_CONSENSUS_ALG }}
+          MIN_GAS_PRICE: ${{ env.BESU_CONSENSUS_ALG }}
+          NET_NAME: ${{ env.BESU_CONSENSUS_ALG }}
+          NETWORK_ID: ${{ env.BESU_CONSENSUS_ALG }}
+          NODE_COUNT: ${{ env.BESU_CONSENSUS_ALG }}
+          ORGANIZATION: ${{ env.BESU_CONSENSUS_ALG }}
+          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.BESU_CONSENSUS_ALG }}
+          SUBNET_NAME: ${{ env.BESU_CONSENSUS_ALG }}
+          VALIDATORS: ${{ env.BESU_CONSENSUS_ALG }}
+          ENV: ${{ env.BESU_CONSENSUS_ALG }}
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} --tags ${{ vars.TAGS }} -vvvv
