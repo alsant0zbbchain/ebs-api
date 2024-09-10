@@ -100,11 +100,11 @@ jobs:
              [ -z "${{ env.BOOTNODES }}" ] || 
              [ -z "${{ env.COMPONENT_ID }}" ] || 
              [ -z "${{ env.COMPONENT_NAME }}" ] || 
-             [ -z "${{ env.COUNTRY }}" ] || 
+             # [ -z "${{ env.COUNTRY }}" ] || 
              [ -z "${{ env.CUSTOMER_ID }}" ] || 
              [ -z "${{ env.DNS_TYPE }}" ] || 
              [ -z "${{ env.DNS_ZONE }}" ] || 
-             [ -z "${{ env.LOCATION }}" ] || 
+             # [ -z "${{ env.LOCATION }}" ] || 
              [ -z "${{ env.MIN_GAS_PRICE }}" ] || 
              [ -z "${{ env.NET_NAME }}" ] || 
              [ -z "${{ env.NETWORK_ID }}" ] || 
@@ -112,7 +112,7 @@ jobs:
              [ -z "${{ env.ORGANIZATION }}" ] || 
              [ -z "${{ env.QUORUM_EXPLORER_IMAGE_TAG }}" ] || 
              [ -z "${{ env.SUBNET_NAME }}" ] || 
-             [ -z "${{ env.VALIDATORS }}" ] || 
+             # [ -z "${{ env.VALIDATORS }}" ] || 
              [ -z "${{ env.ENV }}" ]; then
             echo "Error: One or more required environment variables are missing!"
             exit 1
