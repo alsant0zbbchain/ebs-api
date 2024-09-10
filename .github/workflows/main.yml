@@ -15,7 +15,7 @@ env:
   ARTIFACT_REGISTRY: ${{ vars.ARTIFACT_REGISTRY }}
   AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
   BESU_CONSENSUS_ALG: ${{ fromJson(github.event.inputs.parameters).BESU_CONSENSUS_ALG }} || "QBFT"
-  BOOTNODES: ${{ fromJson(github.event.inputs.parameters).BOOTNODES }}
+  BOOTNODES: ${{ fromJson(github.event.inputs.parameters).BOOTNODES || 'default-bootnode-value' }}
   COMPONENT_ID: ${{ fromJson(github.event.inputs.parameters).COMPONENT_ID }}
   COMPONENT_NAME: ${{ fromJson(github.event.inputs.parameters).COMPONENT_NAME }}
   COUNTRY: ${{ fromJson(github.event.inputs.parameters).COUNTRY }}
