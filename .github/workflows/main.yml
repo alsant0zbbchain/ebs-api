@@ -160,7 +160,7 @@ jobs:
   create-namespace:
     name: "create-namespace"
     runs-on: self-hosted
-    needs: [check-required-env-variables]
+    needs: [checkout-anisble-pipelines]
     environment: dev
     steps:
       - name: Download vars file
@@ -194,3 +194,7 @@ jobs:
           echo "VALIDATORS: $VALIDATORS"
           echo "ENV: $ENV"
           echo "GKE: ${{ vars.GKE }}"
+          echo "----------"
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} --tags ${{ vars.TAGS }} -vvvv
+          echo "Cloned Azure DevOps repository"
