@@ -56,6 +56,9 @@ jobs:
     needs: [set-environment-variables]
     environment: dev
     steps:
+      - name: Print BOOTNODES value
+        run: echo "BOOTNODES=$BOOTNODES"
+        
       - name: Checking BOOTNODES
         if: ${{ env.BOOTNODES == '' }} 
         uses: actions/github-script@v3
