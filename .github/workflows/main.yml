@@ -16,54 +16,59 @@ jobs:
   set-environment-variables:
     name: "Set Global Environment Variables"
     runs-on: [ self-hosted, azure ]
+    outputs:
+      env_file: ${{ steps.set-env.outputs.env_file }}
     steps:
-      - name: Export environment variables globally
+      - id: set-env
+        name: Export environment variables to .env file
         run: |
-          echo "BESU_CONSENSUS_ALG=${{ fromJson(github.event.inputs.parameters).BESU_CONSENSUS_ALG || 'QBFT' }}" >> $GITHUB_ENV
-          echo "BOOTNODES=${{ fromJson(github.event.inputs.parameters).BOOTNODES || '' }}" >> $GITHUB_ENV
-          echo "COMPONENT_ID=${{ fromJson(github.event.inputs.parameters).COMPONENT_ID || '' }}" >> $GITHUB_ENV
-          echo "COMPONENT_NAME=${{ fromJson(github.event.inputs.parameters).COMPONENT_NAME || '' }}" >> $GITHUB_ENV
-          echo "COUNTRY=${{ fromJson(github.event.inputs.parameters).COUNTRY || '' }}" >> $GITHUB_ENV
-          echo "CUSTOMER_ID=${{ fromJson(github.event.inputs.parameters).CUSTOMER_ID || '' }}" >> $GITHUB_ENV
-          echo "DNS_TYPE=${{ fromJson(github.event.inputs.parameters).DNS_TYPE || 'public' }}" >> $GITHUB_ENV
-          echo "DNS_ZONE=${{ fromJson(github.event.inputs.parameters).DNS_ZONE || 'blockchainlab.network' }}" >> $GITHUB_ENV
-          echo "LOCATION=${{ fromJson(github.event.inputs.parameters).LOCATION || '' }}" >> $GITHUB_ENV
-          echo "MIN_GAS_PRICE=${{ fromJson(github.event.inputs.parameters).MIN_GAS_PRICE || '0' }}" >> $GITHUB_ENV
-          echo "NET_NAME=${{ fromJson(github.event.inputs.parameters).NET_NAME || 'ks-net' }}" >> $GITHUB_ENV
-          echo "NETWORK_ID=${{ fromJson(github.event.inputs.parameters).NETWORK_ID || '' }}" >> $GITHUB_ENV
-          echo "NODE_COUNT=${{ fromJson(github.event.inputs.parameters).NODE_COUNT || '4' }}" >> $GITHUB_ENV
-          echo "ORGANIZATION=${{ fromJson(github.event.inputs.parameters).ORGANIZATION || '' }}" >> $GITHUB_ENV
-          echo "QUORUM_EXPLORER_IMAGE_TAG=${{ fromJson(github.event.inputs.parameters).QUORUM_EXPLORER_IMAGE_TAG || '8091' }}" >> $GITHUB_ENV
-          echo "SUBNET_NAME=${{ fromJson(github.event.inputs.parameters).SUBNET_NAME || 'ks-subnet' }}" >> $GITHUB_ENV
-          echo "VALIDATORS=${{ fromJson(github.event.inputs.parameters).VALIDATORS || '' }}" >> $GITHUB_ENV
-          echo "ENV=${{ fromJson(github.event.inputs.parameters).ENV || '' }}" >> $GITHUB_ENV
+          echo "BESU_CONSENSUS_ALG=${{ fromJson(github.event.inputs.parameters).BESU_CONSENSUS_ALG || 'QBFT' }}" >> shared_env_vars.env
+          echo "BOOTNODES=${{ fromJson(github.event.inputs.parameters).BOOTNODES || '' }}" >> shared_env_vars.env
+          echo "COMPONENT_ID=${{ fromJson(github.event.inputs.parameters).COMPONENT_ID || '' }}" >> shared_env_vars.env
+          echo "COMPONENT_NAME=${{ fromJson(github.event.inputs.parameters).COMPONENT_NAME || '' }}" >> shared_env_vars.env
+          echo "COUNTRY=${{ fromJson(github.event.inputs.parameters).COUNTRY || '' }}" >> shared_env_vars.env
+          echo "CUSTOMER_ID=${{ fromJson(github.event.inputs.parameters).CUSTOMER_ID || '' }}" >> shared_env_vars.env
+          echo "DNS_TYPE=${{ fromJson(github.event.inputs.parameters).DNS_TYPE || 'public' }}" >> shared_env_vars.env
+          echo "DNS_ZONE=${{ fromJson(github.event.inputs.parameters).DNS_ZONE || 'blockchainlab.network' }}" >> shared_env_vars.env
+          echo "LOCATION=${{ fromJson(github.event.inputs.parameters).LOCATION || '' }}" >> shared_env_vars.env
+          echo "MIN_GAS_PRICE=${{ fromJson(github.event.inputs.parameters).MIN_GAS_PRICE || '0' }}" >> shared_env_vars.env
+          echo "NET_NAME=${{ fromJson(github.event.inputs.parameters).NET_NAME || 'ks-net' }}" >> shared_env_vars.env
+          echo "NETWORK_ID=${{ fromJson(github.event.inputs.parameters).NETWORK_ID || '' }}" >> shared_env_vars.env
+          echo "NODE_COUNT=${{ fromJson(github.event.inputs.parameters).NODE_COUNT || '4' }}" >> shared_env_vars.env
+          echo "ORGANIZATION=${{ fromJson(github.event.inputs.parameters).ORGANIZATION || '' }}" >> shared_env_vars.env
+          echo "QUORUM_EXPLORER_IMAGE_TAG=${{ fromJson(github.event.inputs.parameters).QUORUM_EXPLORER_IMAGE_TAG || '8091' }}" >> shared_env_vars.env
+          echo "SUBNET_NAME=${{ fromJson(github.event.inputs.parameters).SUBNET_NAME || 'ks-subnet' }}" >> shared_env_vars.env
+          echo "VALIDATORS=${{ fromJson(github.event.inputs.parameters).VALIDATORS || '' }}" >> shared_env_vars.env
+          echo "ENV=${{ fromJson(github.event.inputs.parameters).ENV || '' }}" >> shared_env_vars.env
+          echo "::set-output name=env_file::shared_env_vars.env"
 
   check-required-env-variables:
     name: "required-env-variables"
     runs-on: [ self-hosted, azure ]
-    needs: [set-environment-variables]  # Garantir que as variáveis sejam definidas antes deste job
+    needs: [set-environment-variables]
     environment: dev
     steps:
-      - name: Validate envs - temp
+      - name: Load .env
         run: |
-          echo "BESU_CONSENSUS_ALG: $BESU_CONSENSUS_ALG"
-          echo "BOOTNODES: $BOOTNODES"
-          echo "COMPONENT_ID: $COMPONENT_ID"
-          echo "COMPONENT_NAME: $COMPONENT_NAME"
-          echo "COUNTRY: $COUNTRY"
-          echo "CUSTOMER_ID: $CUSTOMER_ID"
-          echo "DNS_TYPE: $DNS_TYPE"
-          echo "DNS_ZONE: $DNS_ZONE"
-          echo "LOCATION: $LOCATION"
-          echo "MIN_GAS_PRICE: $MIN_GAS_PRICE"
-          echo "NET_NAME: $NET_NAME"
-          echo "NETWORK_ID: $NETWORK_ID"
-          echo "NODE_COUNT: $NODE_COUNT"
-          echo "ORGANIZATION: $ORGANIZATION"
-          echo "QUORUM_EXPLORER_IMAGE_TAG: $QUORUM_EXPLORER_IMAGE_TAG"
-          echo "SUBNET_NAME: $SUBNET_NAME"
-          echo "VALIDATORS: $VALIDATORS"
-          echo "ENV: $ENV"
+          source ${{ needs.set-environment-variables.outputs.env_file }}
+          printenv | grep BESU_CONSENSUS_ALG
+          printenv | grep BOOTNODES
+          printenv | grep COMPONENT_ID
+          printenv | grep COMPONENT_NAME
+          printenv | grep COUNTRY
+          printenv | grep CUSTOMER_ID
+          printenv | grep DNS_TYPE
+          printenv | grep DNS_ZONE
+          printenv | grep LOCATION
+          printenv | grep MIN_GAS_PRICE
+          printenv | grep NET_NAME
+          printenv | grep NETWORK_ID
+          printenv | grep NODE_COUNT
+          printenv | grep ORGANIZATION
+          printenv | grep QUORUM_EXPLORER_IMAGE_TAG
+          printenv | grep SUBNET_NAME
+          printenv | grep VALIDATORS
+          printenv | grep ENV
 
       - name: Checking BOOTNODES
         if: ${{ env.BOOTNODES == '' }}
@@ -71,30 +76,35 @@ jobs:
         with:
           script: |
               core.setFailed('BOOTNODES is required')
+
       - name: Checking COMPONENT_ID
         if: ${{ env.COMPONENT_ID == '' }}
         uses: actions/github-script@v3
         with:
           script: |
               core.setFailed('COMPONENT_ID is required')
+
       - name: Checking COMPONENT_NAME
         if: ${{ env.COMPONENT_NAME == '' }}
         uses: actions/github-script@v3
         with:
           script: |
               core.setFailed('COMPONENT_NAME is required')
+
       - name: Checking CUSTOMER_ID
         if: ${{ env.CUSTOMER_ID == '' }}
         uses: actions/github-script@v3
         with:
           script: |
               core.setFailed('CUSTOMER_ID is required')
+
       - name: Checking NETWORK_ID
         if: ${{ env.NETWORK_ID == '' }}
         uses: actions/github-script@v3
         with:
           script: |
               core.setFailed('NETWORK_ID is required')
+
       - name: Checking VALIDATORS
         if: ${{ env.VALIDATORS == '' }}
         uses: actions/github-script@v3
@@ -124,6 +134,9 @@ jobs:
     needs: [checkout-anisble-pipelines]
     environment: dev-azure
     steps:
+      - name: Load .env
+        run: source ${{ needs.set-environment-variables.outputs.env_file }}
+
       - name: Running playbook to create namespace
         env:
           TIER: ${{ vars.TIER }}
