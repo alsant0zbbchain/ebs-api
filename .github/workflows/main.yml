@@ -17,11 +17,24 @@ jobs:
     name: "Set Global Environment Variables"
     runs-on: self-hosted
     outputs:
+      BESU_CONSENSUS_ALG: ${{ steps.export-env.outputs.BESU_CONSENSUS_ALG }}
       BOOTNODES: ${{ steps.export-env.outputs.BOOTNODES }}
       COMPONENT_ID: ${{ steps.export-env.outputs.COMPONENT_ID }}
       COMPONENT_NAME: ${{ steps.export-env.outputs.COMPONENT_NAME }}
+      COUNTRY: ${{ steps.export-env.outputs.COUNTRY }}
       CUSTOMER_ID: ${{ steps.export-env.outputs.CUSTOMER_ID }}
+      DNS_TYPE: ${{ steps.export-env.outputs.DNS_TYPE }}
+      DNS_ZONE: ${{ steps.export-env.outputs.DNS_ZONE }}
+      LOCATION: ${{ steps.export-env.outputs.LOCATION }}
+      MIN_GAS_PRICE: ${{ steps.export-env.outputs.MIN_GAS_PRICE }}
+      NET_NAME: ${{ steps.export-env.outputs.NET_NAME }}
       NETWORK_ID: ${{ steps.export-env.outputs.NETWORK_ID }}
+      NODE_COUNT: ${{ steps.export-env.outputs.NODE_COUNT }}
+      ORGANIZATION: ${{ steps.export-env.outputs.ORGANIZATION }}
+      QUORUM_EXPLORER_IMAGE_TAG: ${{ steps.export-env.outputs.QUORUM_EXPLORER_IMAGE_TAG }}
+      SUBNET_NAME: ${{ steps.export-env.outputs.SUBNET_NAME }}
+      VALIDATORS: ${{ steps.export-env.outputs.VALIDATORS }}
+      ENV: ${{ steps.export-env.outputs.ENV }}
     steps:
       - name: Print event inputs
         run: |
@@ -31,38 +44,65 @@ jobs:
         name: Export environment variables globally
         run: |
           parameters=$(echo '${{ github.event.inputs.parameters }}' | jq -r .)
+
+          # Export variables and set as outputs
+          BESU_CONSENSUS_ALG=$(echo $parameters | jq -r '.BESU_CONSENSUS_ALG // "QBFT"')
           BOOTNODES=$(echo $parameters | jq -r '.BOOTNODES // ""')
           COMPONENT_ID=$(echo $parameters | jq -r '.COMPONENT_ID // ""')
           COMPONENT_NAME=$(echo $parameters | jq -r '.COMPONENT_NAME // ""')
+          COUNTRY=$(echo $parameters | jq -r '.COUNTRY // ""')
           CUSTOMER_ID=$(echo $parameters | jq -r '.CUSTOMER_ID // ""')
+          DNS_TYPE=$(echo $parameters | jq -r '.DNS_TYPE // "public"')
+          DNS_ZONE=$(echo $parameters | jq -r '.DNS_ZONE // "blockchainlab.network"')
+          LOCATION=$(echo $parameters | jq -r '.LOCATION // ""')
+          MIN_GAS_PRICE=$(echo $parameters | jq -r '.MIN_GAS_PRICE // "0"')
+          NET_NAME=$(echo $parameters | jq -r '.NET_NAME // "ks-net"')
           NETWORK_ID=$(echo $parameters | jq -r '.NETWORK_ID // ""')
+          NODE_COUNT=$(echo $parameters | jq -r '.NODE_COUNT // "4"')
+          ORGANIZATION=$(echo $parameters | jq -r '.ORGANIZATION // ""')
+          QUORUM_EXPLORER_IMAGE_TAG=$(echo $parameters | jq -r '.QUORUM_EXPLORER_IMAGE_TAG // "8091"')
+          SUBNET_NAME=$(echo $parameters | jq -r '.SUBNET_NAME // "ks-subnet"')
+          VALIDATORS=$(echo $parameters | jq -r '.VALIDATORS // ""')
+          ENV=$(echo $parameters | jq -r '.ENV // ""')
 
+          echo "BESU_CONSENSUS_ALG=$BESU_CONSENSUS_ALG"
           echo "BOOTNODES=$BOOTNODES"
+          echo "COMPONENT_ID=$COMPONENT_ID"
+          echo "COMPONENT_NAME=$COMPONENT_NAME"
+          echo "COUNTRY=$COUNTRY"
+          echo "CUSTOMER_ID=$CUSTOMER_ID"
+          echo "DNS_TYPE=$DNS_TYPE"
+          echo "DNS_ZONE=$DNS_ZONE"
+          echo "LOCATION=$LOCATION"
+          echo "MIN_GAS_PRICE=$MIN_GAS_PRICE"
+          echo "NET_NAME=$NET_NAME"
+          echo "NETWORK_ID=$NETWORK_ID"
+          echo "NODE_COUNT=$NODE_COUNT"
+          echo "ORGANIZATION=$ORGANIZATION"
+          echo "QUORUM_EXPLORER_IMAGE_TAG=$QUORUM_EXPLORER_IMAGE_TAG"
+          echo "SUBNET_NAME=$SUBNET_NAME"
+          echo "VALIDATORS=$VALIDATORS"
+          echo "ENV=$ENV"
+
+          # Set outputs for all variables
+          echo "::set-output name=BESU_CONSENSUS_ALG::$BESU_CONSENSUS_ALG"
           echo "::set-output name=BOOTNODES::$BOOTNODES"
           echo "::set-output name=COMPONENT_ID::$COMPONENT_ID"
           echo "::set-output name=COMPONENT_NAME::$COMPONENT_NAME"
+          echo "::set-output name=COUNTRY::$COUNTRY"
           echo "::set-output name=CUSTOMER_ID::$CUSTOMER_ID"
+          echo "::set-output name=DNS_TYPE::$DNS_TYPE"
+          echo "::set-output name=DNS_ZONE::$DNS_ZONE"
+          echo "::set-output name=LOCATION::$LOCATION"
+          echo "::set-output name=MIN_GAS_PRICE::$MIN_GAS_PRICE"
+          echo "::set-output name=NET_NAME::$NET_NAME"
           echo "::set-output name=NETWORK_ID::$NETWORK_ID"
-
-          echo "BESU_CONSENSUS_ALG=$(echo $parameters | jq -r '.BESU_CONSENSUS_ALG // "QBFT"')" >> $GITHUB_ENV
-          echo "DNS_TYPE=$(echo $parameters | jq -r '.DNS_TYPE // "public"')" >> $GITHUB_ENV
-          echo "DNS_ZONE=$(echo $parameters | jq -r '.DNS_ZONE // "blockchainlab.network"')" >> $GITHUB_ENV
-          echo "LOCATION=$(echo $parameters | jq -r '.LOCATION // ""')" >> $GITHUB_ENV
-          echo "MIN_GAS_PRICE=$(echo $parameters | jq -r '.MIN_GAS_PRICE // "0"')" >> $GITHUB_ENV
-          echo "NET_NAME=$(echo $parameters | jq -r '.NET_NAME // "ks-net"')" >> $GITHUB_ENV
-          echo "NODE_COUNT=$(echo $parameters | jq -r '.NODE_COUNT // "4"')" >> $GITHUB_ENV
-          echo "ORGANIZATION=$(echo $parameters | jq -r '.ORGANIZATION // ""')" >> $GITHUB_ENV
-          echo "QUORUM_EXPLORER_IMAGE_TAG=$(echo $parameters | jq -r '.QUORUM_EXPLORER_IMAGE_TAG // "8091"')" >> $GITHUB_ENV
-          echo "SUBNET_NAME=$(echo $parameters | jq -r '.SUBNET_NAME // "ks-subnet"')" >> $GITHUB_ENV
-          echo "VALIDATORS=$(echo $parameters | jq -r '.VALIDATORS // ""')" >> $GITHUB_ENV
-          echo "ENV=$(echo $parameters | jq -r '.ENV // ""')" >> $GITHUB_ENV
-
-      - name: List all environment variables
-        run: printenv
-
-      - name: Check exported BOOTNODES value
-        run: |
-          echo "Exported BOOTNODES: $BOOTNODES"
+          echo "::set-output name=NODE_COUNT::$NODE_COUNT"
+          echo "::set-output name=ORGANIZATION::$ORGANIZATION"
+          echo "::set-output name=QUORUM_EXPLORER_IMAGE_TAG::$QUORUM_EXPLORER_IMAGE_TAG"
+          echo "::set-output name=SUBNET_NAME::$SUBNET_NAME"
+          echo "::set-output name=VALIDATORS::$VALIDATORS"
+          echo "::set-output name=ENV::$ENV"
 
   check-required-env-variables:
     name: "required-env-variables"
