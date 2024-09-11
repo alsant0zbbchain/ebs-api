@@ -170,7 +170,7 @@ jobs:
   create-namespace:
     name: "create-namespace"
     runs-on: self-hosted
-    needs: [set-environment-variables]
+    needs: [checkout-anisble-pipelines, set-environment-variables]
     environment: dev
     steps:
       - name: Running playbook to create namespace
@@ -189,9 +189,9 @@ jobs:
           if [ -z "${{ needs.set-environment-variables.outputs.COMPONENT_NAME }}" ]; then
             missing_envs+=" COMPONENT_NAME, "
           fi
-          if [ -z "${{ needs.set-environment-variables.outputs.COUNTRY }}" ]; then
-            missing_envs+=" COUNTRY, "
-          fi
+          # if [ -z "${{ needs.set-environment-variables.outputs.COUNTRY }}" ]; then
+          #   missing_envs+=" COUNTRY, "
+          # fi
           if [ -z "${{ needs.set-environment-variables.outputs.CUSTOMER_ID }}" ]; then
             missing_envs+=" CUSTOMER_ID, "
           fi
@@ -201,9 +201,9 @@ jobs:
           if [ -z "${{ needs.set-environment-variables.outputs.DNS_ZONE }}" ]; then
             missing_envs+=" DNS_ZONE, "
           fi
-          if [ -z "${{ needs.set-environment-variables.outputs.LOCATION }}" ]; then
-            missing_envs+=" LOCATION, "
-          fi
+          # if [ -z "${{ needs.set-environment-variables.outputs.LOCATION }}" ]; then
+          #   missing_envs+=" LOCATION, "
+          # fi
           if [ -z "${{ needs.set-environment-variables.outputs.MIN_GAS_PRICE }}" ]; then
             missing_envs+=" MIN_GAS_PRICE, "
           fi
@@ -216,18 +216,18 @@ jobs:
           if [ -z "${{ needs.set-environment-variables.outputs.NODE_COUNT }}" ]; then
             missing_envs+=" NODE_COUNT, "
           fi
-          if [ -z "${{ needs.set-environment-variables.outputs.ORGANIZATION }}" ]; then
-            missing_envs+=" ORGANIZATION, "
-          fi
+          # if [ -z "${{ needs.set-environment-variables.outputs.ORGANIZATION }}" ]; then
+          #   missing_envs+=" ORGANIZATION, "
+          # fi
           if [ -z "${{ needs.set-environment-variables.outputs.QUORUM_EXPLORER_IMAGE_TAG }}" ]; then
             missing_envs+=" QUORUM_EXPLORER_IMAGE_TAG, "
           fi
           if [ -z "${{ needs.set-environment-variables.outputs.SUBNET_NAME }}" ]; then
             missing_envs+=" SUBNET_NAME, "
           fi
-          if [ -z "${{ needs.set-environment-variables.outputs.VALIDATORS }}" ]; then
-            missing_envs+=" VALIDATORS, "
-          fi
+          # if [ -z "${{ needs.set-environment-variables.outputs.VALIDATORS }}" ]; then
+          #   missing_envs+=" VALIDATORS, "
+          # fi
           if [ -z "${{ needs.set-environment-variables.outputs.ENV }}" ]; then
             missing_envs+=" ENV, "
           fi
