@@ -53,6 +53,7 @@ jobs:
   check-required-env-variables:
     name: "required-env-variables"
     runs-on: self-hosted
+    needs: [set-environment-variables]
     environment: dev
     steps:
       - name: Checking BOOTNODES
