@@ -137,3 +137,22 @@ jobs:
       #   with:
       #     script: |
       #       core.setFailed('VALIDATORS is required')
+
+  checkout-anisble-pipelines:
+    name: "checkout-ansible-pipelines"
+    runs-on: self-hosted
+    needs: [check-required-env-variables]
+    environment: dev
+    steps:
+      - name: Checkout Azure DevOps repo
+        env:
+          AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
+        run: |
+          rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          echo "Running copy of sa-key.json"
+          echo "${{ secrets.SAKEY }}" >> sa-key.json
+          cat sa-key.json
+          git checkout ${{ vars.BRANCH }}
+          echo "Cloned Azure DevOps repository"
