@@ -174,7 +174,11 @@ jobs:
           set +a
       - name: Test - Check environment variables
         run: |
+          echo "GKE: ${{ vars.GKE }}"
           echo "TIER: ${{ vars.TIER }}"
+          echo "FOUNDATION_REPO_PATH: ${{ vars.FOUNDATION_REPO_PATH }}"
+          echo "NAMESPACE_PLAYBOOK: ${{ vars.NAMESPACE_PLAYBOOK }}"
+          echo "TAGS: ${{ vars.TAGS }}"
           echo "BESU_CONSENSUS_ALG: $BESU_CONSENSUS_ALG"
           echo "BOOTNODES: $BOOTNODES"
           echo "COMPONENT_ID: $COMPONENT_ID"
@@ -193,7 +197,6 @@ jobs:
           echo "SUBNET_NAME: $SUBNET_NAME"
           echo "VALIDATORS: $VALIDATORS"
           echo "ENV: $ENV"
-          echo "GKE: ${{ vars.GKE }}"
           echo "----------"
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} --tags ${{ vars.TAGS }} -vvvv
