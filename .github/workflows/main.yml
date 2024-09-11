@@ -46,7 +46,8 @@ jobs:
         run: printenv
 
       - name: Check exported BOOTNODES value
-        run: echo "Exported BOOTNODES: $BOOTNODES"        
+        run: |
+          echo "Exported BOOTNODES: $BOOTNODES"
 
   check-required-env-variables:
     name: "required-env-variables"
