@@ -117,6 +117,7 @@ jobs:
           ENV: ${{ env.ENV }} 
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
+          ansible-galaxy collection install kubernetes.core
           ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} -vvvv
   create-service-principal:
     name: "create-service-principal"
