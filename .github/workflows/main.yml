@@ -23,24 +23,25 @@ jobs:
 
       - name: Export environment variables globally
         run: |
-          echo "BESU_CONSENSUS_ALG=${{ fromJson(github.event.inputs.parameters).BESU_CONSENSUS_ALG || 'QBFT' }}" >> $GITHUB_ENV
-          echo "BOOTNODES=${{ fromJson(github.event.inputs.parameters).BOOTNODES || '' }}" >> $GITHUB_ENV
-          echo "COMPONENT_ID=${{ fromJson(github.event.inputs.parameters).COMPONENT_ID || '' }}" >> $GITHUB_ENV
-          echo "COMPONENT_NAME=${{ fromJson(github.event.inputs.parameters).COMPONENT_NAME || '' }}" >> $GITHUB_ENV
-          echo "COUNTRY=${{ fromJson(github.event.inputs.parameters).COUNTRY || '' }}" >> $GITHUB_ENV
-          echo "CUSTOMER_ID=${{ fromJson(github.event.inputs.parameters).CUSTOMER_ID || '' }}" >> $GITHUB_ENV
-          echo "DNS_TYPE=${{ fromJson(github.event.inputs.parameters).DNS_TYPE || 'public' }}" >> $GITHUB_ENV
-          echo "DNS_ZONE=${{ fromJson(github.event.inputs.parameters).DNS_ZONE || 'blockchainlab.network' }}" >> $GITHUB_ENV
-          echo "LOCATION=${{ fromJson(github.event.inputs.parameters).LOCATION || '' }}" >> $GITHUB_ENV
-          echo "MIN_GAS_PRICE=${{ fromJson(github.event.inputs.parameters).MIN_GAS_PRICE || '0' }}" >> $GITHUB_ENV
-          echo "NET_NAME=${{ fromJson(github.event.inputs.parameters).NET_NAME || 'ks-net' }}" >> $GITHUB_ENV
-          echo "NETWORK_ID=${{ fromJson(github.event.inputs.parameters).NETWORK_ID || '' }}" >> $GITHUB_ENV
-          echo "NODE_COUNT=${{ fromJson(github.event.inputs.parameters).NODE_COUNT || '4' }}" >> $GITHUB_ENV
-          echo "ORGANIZATION=${{ fromJson(github.event.inputs.parameters).ORGANIZATION || '' }}" >> $GITHUB_ENV
-          echo "QUORUM_EXPLORER_IMAGE_TAG=${{ fromJson(github.event.inputs.parameters).QUORUM_EXPLORER_IMAGE_TAG || '8091' }}" >> $GITHUB_ENV
-          echo "SUBNET_NAME=${{ fromJson(github.event.inputs.parameters).SUBNET_NAME || 'ks-subnet' }}" >> $GITHUB_ENV
-          echo "VALIDATORS=${{ fromJson(github.event.inputs.parameters).VALIDATORS || '' }}" >> $GITHUB_ENV
-          echo "ENV=${{ fromJson(github.event.inputs.parameters).ENV || '' }}" >> $GITHUB_ENV
+          parameters=$(echo '${{ github.event.inputs.parameters }}' | jq -r .)
+          echo "BESU_CONSENSUS_ALG=$(echo $parameters | jq -r '.BESU_CONSENSUS_ALG // "QBFT"')" >> $GITHUB_ENV
+          echo "BOOTNODES=$(echo $parameters | jq -r '.BOOTNODES // ""')" >> $GITHUB_ENV
+          echo "COMPONENT_ID=$(echo $parameters | jq -r '.COMPONENT_ID // ""')" >> $GITHUB_ENV
+          echo "COMPONENT_NAME=$(echo $parameters | jq -r '.COMPONENT_NAME // ""')" >> $GITHUB_ENV
+          echo "COUNTRY=$(echo $parameters | jq -r '.COUNTRY // ""')" >> $GITHUB_ENV
+          echo "CUSTOMER_ID=$(echo $parameters | jq -r '.CUSTOMER_ID // ""')" >> $GITHUB_ENV
+          echo "DNS_TYPE=$(echo $parameters | jq -r '.DNS_TYPE // "public"')" >> $GITHUB_ENV
+          echo "DNS_ZONE=$(echo $parameters | jq -r '.DNS_ZONE // "blockchainlab.network"')" >> $GITHUB_ENV
+          echo "LOCATION=$(echo $parameters | jq -r '.LOCATION // ""')" >> $GITHUB_ENV
+          echo "MIN_GAS_PRICE=$(echo $parameters | jq -r '.MIN_GAS_PRICE // "0"')" >> $GITHUB_ENV
+          echo "NET_NAME=$(echo $parameters | jq -r '.NET_NAME // "ks-net"')" >> $GITHUB_ENV
+          echo "NETWORK_ID=$(echo $parameters | jq -r '.NETWORK_ID // ""')" >> $GITHUB_ENV
+          echo "NODE_COUNT=$(echo $parameters | jq -r '.NODE_COUNT // "4"')" >> $GITHUB_ENV
+          echo "ORGANIZATION=$(echo $parameters | jq -r '.ORGANIZATION // ""')" >> $GITHUB_ENV
+          echo "QUORUM_EXPLORER_IMAGE_TAG=$(echo $parameters | jq -r '.QUORUM_EXPLORER_IMAGE_TAG // "8091"')" >> $GITHUB_ENV
+          echo "SUBNET_NAME=$(echo $parameters | jq -r '.SUBNET_NAME // "ks-subnet"')" >> $GITHUB_ENV
+          echo "VALIDATORS=$(echo $parameters | jq -r '.VALIDATORS // ""')" >> $GITHUB_ENV
+          echo "ENV=$(echo $parameters | jq -r '.ENV // ""')" >> $GITHUB_ENV
 
       - name: List all environment variables
         run: printenv
