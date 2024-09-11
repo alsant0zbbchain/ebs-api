@@ -77,7 +77,7 @@ jobs:
     name: "checkout-ansible-pipelines"
     runs-on: self-hosted
     needs: [check-required-env-variables]
-    environment: dev
+    environment: dev-azure
     steps:
       - name: Checkout Azure DevOps repo
         env:
@@ -88,14 +88,13 @@ jobs:
           cd ${{ vars.FOUNDATION_REPO_PATH_AZURE }}
           echo "Running copy of sa-key.json"
           echo "${{ secrets.SAKEY }}" >> sa-key.json
-          cat sa-key.json
           git checkout ${{ vars.BRANCH }}
           echo "Cloned Azure DevOps repository"
   create-namespace:
     name: "create-namespace"
     runs-on: self-hosted
     needs: [checkout-anisble-pipelines]
-    environment: dev
+    environment: dev-azure
     steps:
       - name: Running playbook to create namespace
         env:
@@ -128,7 +127,7 @@ jobs:
       id-token: write
     runs-on: self-hosted
     needs: [create-namespace]
-    environment: dev
+    environment: dev-azure
     steps:
       # Checks out the repository this file is in
       - uses: actions/checkout@v4

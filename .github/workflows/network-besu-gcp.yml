@@ -88,7 +88,6 @@ jobs:
           cd ${{ vars.FOUNDATION_REPO_PATH_GCP }}
           echo "Running copy of sa-key.json"
           echo "${{ secrets.SAKEY }}" >> sa-key.json
-          cat sa-key.json
           git checkout ${{ vars.BRANCH }}
           echo "Cloned Azure DevOps repository"
   create-namespace:
