@@ -1,4 +1,4 @@
-name: Hyperledger Besu Network
+name: Hyperledger Besu Network Azure
 run-name: ${{ inputs.identifier }}
 
 on:
@@ -15,144 +15,98 @@ on:
 jobs:
   set-environment-variables:
     name: "Set Global Environment Variables"
-    runs-on: self-hosted
-    outputs:
-      BESU_CONSENSUS_ALG: ${{ steps.export-env.outputs.BESU_CONSENSUS_ALG }}
-      BOOTNODES: ${{ steps.export-env.outputs.BOOTNODES }}
-      COMPONENT_ID: ${{ steps.export-env.outputs.COMPONENT_ID }}
-      COMPONENT_NAME: ${{ steps.export-env.outputs.COMPONENT_NAME }}
-      COUNTRY: ${{ steps.export-env.outputs.COUNTRY }}
-      CUSTOMER_ID: ${{ steps.export-env.outputs.CUSTOMER_ID }}
-      DNS_TYPE: ${{ steps.export-env.outputs.DNS_TYPE }}
-      DNS_ZONE: ${{ steps.export-env.outputs.DNS_ZONE }}
-      LOCATION: ${{ steps.export-env.outputs.LOCATION }}
-      MIN_GAS_PRICE: ${{ steps.export-env.outputs.MIN_GAS_PRICE }}
-      NET_NAME: ${{ steps.export-env.outputs.NET_NAME }}
-      NETWORK_ID: ${{ steps.export-env.outputs.NETWORK_ID }}
-      NODE_COUNT: ${{ steps.export-env.outputs.NODE_COUNT }}
-      ORGANIZATION: ${{ steps.export-env.outputs.ORGANIZATION }}
-      QUORUM_EXPLORER_IMAGE_TAG: ${{ steps.export-env.outputs.QUORUM_EXPLORER_IMAGE_TAG }}
-      SUBNET_NAME: ${{ steps.export-env.outputs.SUBNET_NAME }}
-      VALIDATORS: ${{ steps.export-env.outputs.VALIDATORS }}
-      ENV: ${{ steps.export-env.outputs.ENV }}
+    runs-on: [ self-hosted, azure ]
     steps:
-      - name: Print event inputs
+      - name: Export environment variables globally
         run: |
-          echo "Event Inputs: ${{ toJson(github.event.inputs) }}"
-
-      - id: export-env
-        name: Export environment variables globally
-        run: |
-          parameters=$(echo '${{ github.event.inputs.parameters }}' | jq -r .)
-
-          # Export variables and set as outputs
-          BESU_CONSENSUS_ALG=$(echo $parameters | jq -r '.BESU_CONSENSUS_ALG // "QBFT"')
-          BOOTNODES=$(echo $parameters | jq -r '.BOOTNODES // ""')
-          COMPONENT_ID=$(echo $parameters | jq -r '.COMPONENT_ID // ""')
-          COMPONENT_NAME=$(echo $parameters | jq -r '.COMPONENT_NAME // ""')
-          COUNTRY=$(echo $parameters | jq -r '.COUNTRY // ""')
-          CUSTOMER_ID=$(echo $parameters | jq -r '.CUSTOMER_ID // ""')
-          DNS_TYPE=$(echo $parameters | jq -r '.DNS_TYPE // "public"')
-          DNS_ZONE=$(echo $parameters | jq -r '.DNS_ZONE // "blockchainlab.network"')
-          LOCATION=$(echo $parameters | jq -r '.LOCATION // ""')
-          MIN_GAS_PRICE=$(echo $parameters | jq -r '.MIN_GAS_PRICE // "0"')
-          NET_NAME=$(echo $parameters | jq -r '.NET_NAME // "ks-net"')
-          NETWORK_ID=$(echo $parameters | jq -r '.NETWORK_ID // ""')
-          NODE_COUNT=$(echo $parameters | jq -r '.NODE_COUNT // "4"')
-          ORGANIZATION=$(echo $parameters | jq -r '.ORGANIZATION // ""')
-          QUORUM_EXPLORER_IMAGE_TAG=$(echo $parameters | jq -r '.QUORUM_EXPLORER_IMAGE_TAG // "8091"')
-          SUBNET_NAME=$(echo $parameters | jq -r '.SUBNET_NAME // "ks-subnet"')
-          VALIDATORS=$(echo $parameters | jq -r '.VALIDATORS // ""')
-          ENV=$(echo $parameters | jq -r '.ENV // ""')
-
-          echo "BESU_CONSENSUS_ALG=$BESU_CONSENSUS_ALG"
-          echo "BOOTNODES=$BOOTNODES"
-          echo "COMPONENT_ID=$COMPONENT_ID"
-          echo "COMPONENT_NAME=$COMPONENT_NAME"
-          echo "COUNTRY=$COUNTRY"
-          echo "CUSTOMER_ID=$CUSTOMER_ID"
-          echo "DNS_TYPE=$DNS_TYPE"
-          echo "DNS_ZONE=$DNS_ZONE"
-          echo "LOCATION=$LOCATION"
-          echo "MIN_GAS_PRICE=$MIN_GAS_PRICE"
-          echo "NET_NAME=$NET_NAME"
-          echo "NETWORK_ID=$NETWORK_ID"
-          echo "NODE_COUNT=$NODE_COUNT"
-          echo "ORGANIZATION=$ORGANIZATION"
-          echo "QUORUM_EXPLORER_IMAGE_TAG=$QUORUM_EXPLORER_IMAGE_TAG"
-          echo "SUBNET_NAME=$SUBNET_NAME"
-          echo "VALIDATORS=$VALIDATORS"
-          echo "ENV=$ENV"
-
-          # Set outputs for all variables
-          echo "::set-output name=BESU_CONSENSUS_ALG::$BESU_CONSENSUS_ALG"
-          echo "::set-output name=BOOTNODES::$BOOTNODES"
-          echo "::set-output name=COMPONENT_ID::$COMPONENT_ID"
-          echo "::set-output name=COMPONENT_NAME::$COMPONENT_NAME"
-          echo "::set-output name=COUNTRY::$COUNTRY"
-          echo "::set-output name=CUSTOMER_ID::$CUSTOMER_ID"
-          echo "::set-output name=DNS_TYPE::$DNS_TYPE"
-          echo "::set-output name=DNS_ZONE::$DNS_ZONE"
-          echo "::set-output name=LOCATION::$LOCATION"
-          echo "::set-output name=MIN_GAS_PRICE::$MIN_GAS_PRICE"
-          echo "::set-output name=NET_NAME::$NET_NAME"
-          echo "::set-output name=NETWORK_ID::$NETWORK_ID"
-          echo "::set-output name=NODE_COUNT::$NODE_COUNT"
-          echo "::set-output name=ORGANIZATION::$ORGANIZATION"
-          echo "::set-output name=QUORUM_EXPLORER_IMAGE_TAG::$QUORUM_EXPLORER_IMAGE_TAG"
-          echo "::set-output name=SUBNET_NAME::$SUBNET_NAME"
-          echo "::set-output name=VALIDATORS::$VALIDATORS"
-          echo "::set-output name=ENV::$ENV"
+          echo "BESU_CONSENSUS_ALG=${{ fromJson(github.event.inputs.parameters).BESU_CONSENSUS_ALG || 'QBFT' }}" >> $GITHUB_ENV
+          echo "BOOTNODES=${{ fromJson(github.event.inputs.parameters).BOOTNODES || '' }}" >> $GITHUB_ENV
+          echo "COMPONENT_ID=${{ fromJson(github.event.inputs.parameters).COMPONENT_ID || '' }}" >> $GITHUB_ENV
+          echo "COMPONENT_NAME=${{ fromJson(github.event.inputs.parameters).COMPONENT_NAME || '' }}" >> $GITHUB_ENV
+          echo "COUNTRY=${{ fromJson(github.event.inputs.parameters).COUNTRY || '' }}" >> $GITHUB_ENV
+          echo "CUSTOMER_ID=${{ fromJson(github.event.inputs.parameters).CUSTOMER_ID || '' }}" >> $GITHUB_ENV
+          echo "DNS_TYPE=${{ fromJson(github.event.inputs.parameters).DNS_TYPE || 'public' }}" >> $GITHUB_ENV
+          echo "DNS_ZONE=${{ fromJson(github.event.inputs.parameters).DNS_ZONE || 'blockchainlab.network' }}" >> $GITHUB_ENV
+          echo "LOCATION=${{ fromJson(github.event.inputs.parameters).LOCATION || '' }}" >> $GITHUB_ENV
+          echo "MIN_GAS_PRICE=${{ fromJson(github.event.inputs.parameters).MIN_GAS_PRICE || '0' }}" >> $GITHUB_ENV
+          echo "NET_NAME=${{ fromJson(github.event.inputs.parameters).NET_NAME || 'ks-net' }}" >> $GITHUB_ENV
+          echo "NETWORK_ID=${{ fromJson(github.event.inputs.parameters).NETWORK_ID || '' }}" >> $GITHUB_ENV
+          echo "NODE_COUNT=${{ fromJson(github.event.inputs.parameters).NODE_COUNT || '4' }}" >> $GITHUB_ENV
+          echo "ORGANIZATION=${{ fromJson(github.event.inputs.parameters).ORGANIZATION || '' }}" >> $GITHUB_ENV
+          echo "QUORUM_EXPLORER_IMAGE_TAG=${{ fromJson(github.event.inputs.parameters).QUORUM_EXPLORER_IMAGE_TAG || '8091' }}" >> $GITHUB_ENV
+          echo "SUBNET_NAME=${{ fromJson(github.event.inputs.parameters).SUBNET_NAME || 'ks-subnet' }}" >> $GITHUB_ENV
+          echo "VALIDATORS=${{ fromJson(github.event.inputs.parameters).VALIDATORS || '' }}" >> $GITHUB_ENV
+          echo "ENV=${{ fromJson(github.event.inputs.parameters).ENV || '' }}" >> $GITHUB_ENV
 
   check-required-env-variables:
     name: "required-env-variables"
-    runs-on: self-hosted
-    needs: [set-environment-variables]
+    runs-on: [ self-hosted, azure ]
+    needs: [set-environment-variables]  # Garantir que as variáveis sejam definidas antes deste job
     environment: dev
     steps:
-      - name: Print BOOTNODES value
-        run: echo "BOOTNODES=${{ needs.set-environment-variables.outputs.BOOTNODES }}"
-        
+      - name: Validate envs - temp
+        run: |
+          echo "BESU_CONSENSUS_ALG: $BESU_CONSENSUS_ALG"
+          echo "BOOTNODES: $BOOTNODES"
+          echo "COMPONENT_ID: $COMPONENT_ID"
+          echo "COMPONENT_NAME: $COMPONENT_NAME"
+          echo "COUNTRY: $COUNTRY"
+          echo "CUSTOMER_ID: $CUSTOMER_ID"
+          echo "DNS_TYPE: $DNS_TYPE"
+          echo "DNS_ZONE: $DNS_ZONE"
+          echo "LOCATION: $LOCATION"
+          echo "MIN_GAS_PRICE: $MIN_GAS_PRICE"
+          echo "NET_NAME: $NET_NAME"
+          echo "NETWORK_ID: $NETWORK_ID"
+          echo "NODE_COUNT: $NODE_COUNT"
+          echo "ORGANIZATION: $ORGANIZATION"
+          echo "QUORUM_EXPLORER_IMAGE_TAG: $QUORUM_EXPLORER_IMAGE_TAG"
+          echo "SUBNET_NAME: $SUBNET_NAME"
+          echo "VALIDATORS: $VALIDATORS"
+          echo "ENV: $ENV"
+
       - name: Checking BOOTNODES
-        if: ${{ needs.set-environment-variables.outputs.BOOTNODES == '' }} 
+        if: ${{ env.BOOTNODES == '' }}
         uses: actions/github-script@v3
         with:
           script: |
               core.setFailed('BOOTNODES is required')
-
       - name: Checking COMPONENT_ID
-        if: ${{ needs.set-environment-variables.outputs.COMPONENT_ID == '' }} 
+        if: ${{ env.COMPONENT_ID == '' }}
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('COMPONENT_ID is required') 
-
+              core.setFailed('COMPONENT_ID is required')
       - name: Checking COMPONENT_NAME
-        if: ${{ needs.set-environment-variables.outputs.COMPONENT_NAME == '' }} 
+        if: ${{ env.COMPONENT_NAME == '' }}
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('COMPONENT_NAME is required')     
-
+              core.setFailed('COMPONENT_NAME is required')
       - name: Checking CUSTOMER_ID
-        if: ${{ needs.set-environment-variables.outputs.CUSTOMER_ID == '' }} 
+        if: ${{ env.CUSTOMER_ID == '' }}
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('CUSTOMER_ID is required') 
-
+              core.setFailed('CUSTOMER_ID is required')
       - name: Checking NETWORK_ID
-        if: ${{ needs.set-environment-variables.outputs.NETWORK_ID == '' }} 
+        if: ${{ env.NETWORK_ID == '' }}
         uses: actions/github-script@v3
         with:
           script: |
               core.setFailed('NETWORK_ID is required')
+      - name: Checking VALIDATORS
+        if: ${{ env.VALIDATORS == '' }}
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('VALIDATORS is required')
 
   checkout-anisble-pipelines:
     name: "checkout-ansible-pipelines"
-    runs-on: self-hosted
+    runs-on: [ self-hosted, azure ]
     needs: [check-required-env-variables]
-    environment: dev
+    environment: dev-azure
     steps:
       - name: Checkout Azure DevOps repo
         env:
@@ -161,131 +115,22 @@ jobs:
           rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
           git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
           cd ${{ vars.FOUNDATION_REPO_PATH }}
-          echo "Running copy of sa-key.json"
-          echo "${{ secrets.SAKEY }}" >> sa-key.json
-          cat sa-key.json
           git checkout ${{ vars.BRANCH }}
           echo "Cloned Azure DevOps repository"
 
   create-namespace:
     name: "create-namespace"
-    runs-on: self-hosted
-    needs: [checkout-anisble-pipelines, set-environment-variables]
-    environment: dev
+    runs-on: [ self-hosted, azure ]
+    needs: [checkout-anisble-pipelines]
+    environment: dev-azure
     steps:
       - name: Running playbook to create namespace
+        env:
+          TIER: ${{ vars.TIER }}
+          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
+          CLIENT_ID: ${{ vars.CLIENT_ID }}
+          TENANT_ID: ${{ vars.TENANT_ID }}
+          SECRET: ${{ secrets.SECRET }}
         run: |
-          missing_envs=""
-  
-          if [ -z "${{ needs.set-environment-variables.outputs.BESU_CONSENSUS_ALG }}" ]; then
-            missing_envs+=" BESU_CONSENSUS_ALG, "
-          fi
-          if [ -z "${{ needs.set-environment-variables.outputs.BOOTNODES }}" ]; then
-            missing_envs+=" BOOTNODES, "
-          fi
-          if [ -z "${{ needs.set-environment-variables.outputs.COMPONENT_ID }}" ]; then
-            missing_envs+=" COMPONENT_ID, "
-          fi
-          if [ -z "${{ needs.set-environment-variables.outputs.COMPONENT_NAME }}" ]; then
-            missing_envs+=" COMPONENT_NAME, "
-          fi
-          # if [ -z "${{ needs.set-environment-variables.outputs.COUNTRY }}" ]; then
-          #   missing_envs+=" COUNTRY, "
-          # fi
-          if [ -z "${{ needs.set-environment-variables.outputs.CUSTOMER_ID }}" ]; then
-            missing_envs+=" CUSTOMER_ID, "
-          fi
-          if [ -z "${{ needs.set-environment-variables.outputs.DNS_TYPE }}" ]; then
-            missing_envs+=" DNS_TYPE, "
-          fi
-          if [ -z "${{ needs.set-environment-variables.outputs.DNS_ZONE }}" ]; then
-            missing_envs+=" DNS_ZONE, "
-          fi
-          # if [ -z "${{ needs.set-environment-variables.outputs.LOCATION }}" ]; then
-          #   missing_envs+=" LOCATION, "
-          # fi
-          if [ -z "${{ needs.set-environment-variables.outputs.MIN_GAS_PRICE }}" ]; then
-            missing_envs+=" MIN_GAS_PRICE, "
-          fi
-          if [ -z "${{ needs.set-environment-variables.outputs.NET_NAME }}" ]; then
-            missing_envs+=" NET_NAME, "
-          fi
-          if [ -z "${{ needs.set-environment-variables.outputs.NETWORK_ID }}" ]; then
-            missing_envs+=" NETWORK_ID, "
-          fi
-          if [ -z "${{ needs.set-environment-variables.outputs.NODE_COUNT }}" ]; then
-            missing_envs+=" NODE_COUNT, "
-          fi
-          # if [ -z "${{ needs.set-environment-variables.outputs.ORGANIZATION }}" ]; then
-          #   missing_envs+=" ORGANIZATION, "
-          # fi
-          if [ -z "${{ needs.set-environment-variables.outputs.QUORUM_EXPLORER_IMAGE_TAG }}" ]; then
-            missing_envs+=" QUORUM_EXPLORER_IMAGE_TAG, "
-          fi
-          if [ -z "${{ needs.set-environment-variables.outputs.SUBNET_NAME }}" ]; then
-            missing_envs+=" SUBNET_NAME, "
-          fi
-          # if [ -z "${{ needs.set-environment-variables.outputs.VALIDATORS }}" ]; then
-          #   missing_envs+=" VALIDATORS, "
-          # fi
-          if [ -z "${{ needs.set-environment-variables.outputs.ENV }}" ]; then
-            missing_envs+=" ENV, "
-          fi
-  
-          if [ -n "$missing_envs" ]; then
-            echo "Error: The following required environment variables are missing: $missing_envs"
-            exit 1
-          fi
-  
-          echo "Starting Ansible playbook with the following parameters:"
-          echo "BESU_CONSENSUS_ALG=${{ needs.set-environment-variables.outputs.BESU_CONSENSUS_ALG }}"
-          echo "BOOTNODES=${{ needs.set-environment-variables.outputs.BOOTNODES }}"
-          echo "COMPONENT_ID=${{ needs.set-environment-variables.outputs.COMPONENT_ID }}"
-          echo "COMPONENT_NAME=${{ needs.set-environment-variables.outputs.COMPONENT_NAME }}"
-          echo "COUNTRY=${{ needs.set-environment-variables.outputs.COUNTRY }}"
-          echo "CUSTOMER_ID=${{ needs.set-environment-variables.outputs.CUSTOMER_ID }}"
-          echo "DNS_TYPE=${{ needs.set-environment-variables.outputs.DNS_TYPE }}"
-          echo "DNS_ZONE=${{ needs.set-environment-variables.outputs.DNS_ZONE }}"
-          echo "LOCATION=${{ needs.set-environment-variables.outputs.LOCATION }}"
-          echo "MIN_GAS_PRICE=${{ needs.set-environment-variables.outputs.MIN_GAS_PRICE }}"
-          echo "NET_NAME=${{ needs.set-environment-variables.outputs.NET_NAME }}"
-          echo "NETWORK_ID=${{ needs.set-environment-variables.outputs.NETWORK_ID }}"
-          echo "NODE_COUNT=${{ needs.set-environment-variables.outputs.NODE_COUNT }}"
-          echo "ORGANIZATION=${{ needs.set-environment-variables.outputs.ORGANIZATION }}"
-          echo "QUORUM_EXPLORER_IMAGE_TAG=${{ needs.set-environment-variables.outputs.QUORUM_EXPLORER_IMAGE_TAG }}"
-          echo "SUBNET_NAME=${{ needs.set-environment-variables.outputs.SUBNET_NAME }}"
-          echo "VALIDATORS=${{ needs.set-environment-variables.outputs.VALIDATORS }}"
-          echo "ENV=${{ needs.set-environment-variables.outputs.ENV }}"
-  
           cd ${{ vars.FOUNDATION_REPO_PATH }}
-          if [ $? -ne 0 ]; then
-            echo "Failed to change directory. Exiting pipeline."
-            exit 1
-          fi
-  
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} --tags ${{ vars.TAGS }} -vvvv
-          if [ $? -ne 0 ]; then
-            echo "Ansible playbook execution failed. Exiting pipeline."
-            exit 1
-          else
-            echo "Ansible playbook executed successfully. Namespace created."
-          fi          
-
-  buildImage:
-    permissions:
-      contents: read
-      id-token: write
-    runs-on: self-hosted
-    needs: [create-namespace]
-    environment: dev
-    steps:
-      # Checks out the repository this file is in
-      - uses: actions/checkout@v4
-
-      # Logs in with your Azure credentials
-      - name: Azure login
-        uses: azure/login@v1.4.6
-        with:
-          client-id: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
-          tenant-id: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
-          subscription-id: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} -vvvv
