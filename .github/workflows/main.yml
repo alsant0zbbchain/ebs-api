@@ -16,8 +16,6 @@ jobs:
   set-environment-variables:
     name: "Set Global Environment Variables"
     runs-on: [ self-hosted, azure ]
-    outputs:
-      env_file: ${{ steps.set-env.outputs.env_file }}
     steps:
       - id: set-env
         name: Export environment variables to .env file
@@ -40,7 +38,12 @@ jobs:
           echo "SUBNET_NAME=${{ fromJson(github.event.inputs.parameters).SUBNET_NAME || 'ks-subnet' }}" >> shared_env_vars.env
           echo "VALIDATORS=${{ fromJson(github.event.inputs.parameters).VALIDATORS || '' }}" >> shared_env_vars.env
           echo "ENV=${{ fromJson(github.event.inputs.parameters).ENV || '' }}" >> shared_env_vars.env
-          echo "::set-output name=env_file::shared_env_vars.env"
+
+      - name: Upload environment variables as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: shared-env-vars
+          path: shared_env_vars.env
 
   check-required-env-variables:
     name: "required-env-variables"
@@ -48,9 +51,15 @@ jobs:
     needs: [set-environment-variables]
     environment: dev
     steps:
+      - name: Download environment variables artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: shared-env-vars
+          path: .
+
       - name: Load .env
         run: |
-          source ${{ needs.set-environment-variables.outputs.env_file }}
+          source shared_env_vars.env
           printenv | grep BESU_CONSENSUS_ALG
           printenv | grep BOOTNODES
           printenv | grep COMPONENT_ID
@@ -134,8 +143,14 @@ jobs:
     needs: [checkout-anisble-pipelines]
     environment: dev-azure
     steps:
+      - name: Download environment variables artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: shared-env-vars
+          path: .
+
       - name: Load .env
-        run: source ${{ needs.set-environment-variables.outputs.env_file }}
+        run: source shared_env_vars.env
 
       - name: Running playbook to create namespace
         env:
