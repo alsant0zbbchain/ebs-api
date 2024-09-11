@@ -151,7 +151,7 @@ jobs:
   create-database:
     name: "create-database"
     runs-on: [ self-hosted, azure ]
-    needs: [ccreate-service-principal]
+    needs: [create-service-principal]
     environment: dev-azure
     steps:
       - name: Running playbook to create database
@@ -181,7 +181,7 @@ jobs:
   create-storage:
     name: "create-storage"
     runs-on: [ self-hosted, azure ]
-    needs: [ccreate-service-principal]
+    needs: [create-service-principal]
     environment: dev-azure
     steps:
       - name: Running playbook to create storage
@@ -211,7 +211,7 @@ jobs:
   create-keyvault:
     name: "create-keyvault"
     runs-on: [ self-hosted, azure ]
-    needs: [ccreate-service-principal]
+    needs: [create-service-principal]
     environment: dev-azure
     steps:
       - name: Running playbook to create keyvault
