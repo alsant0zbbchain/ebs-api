@@ -37,6 +37,9 @@ jobs:
           echo "SUBNET_NAME=${{ fromJson(github.event.inputs.parameters).SUBNET_NAME || 'ks-subnet' }}" >> $GITHUB_ENV
           echo "VALIDATORS=${{ fromJson(github.event.inputs.parameters).VALIDATORS || '' }}" >> $GITHUB_ENV
           echo "ENV=${{ fromJson(github.event.inputs.parameters).ENV || '' }}" >> $GITHUB_ENV
+      - name: List all environment variables
+        run: printenv
+        
 
   check-required-env-variables:
     name: "required-env-variables"
