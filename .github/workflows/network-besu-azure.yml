@@ -306,6 +306,7 @@ jobs:
           CLIENT_ID: ${{ vars.CLIENT_ID }}
           TENANT_ID: ${{ vars.TENANT_ID }}
           SECRET: ${{ secrets.SECRET }}
+          RG_NAME: ${{ vars.RG_NAME }}
           ENV: ${{ env.ENV }} 
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
