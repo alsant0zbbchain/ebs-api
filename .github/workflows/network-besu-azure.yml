@@ -280,7 +280,8 @@ jobs:
           tokenSuffix: '}'
           files: '["**/infra-requirements.yaml"]'
         env:
-          AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}           
+          AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}        
+          BRANCH: ${{ vars.BRANCH }}   
       - name: Running playbook to generate network
         env:
           TIER: ${{ vars.TIER }}  
