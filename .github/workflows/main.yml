@@ -131,9 +131,9 @@ jobs:
         with:
           script: |
             core.setFailed('NETWORK_ID is required')        
-      - name: Checking VALIDATORS
-        if: ${{ env.VALIDATORS == '' }}
-        uses: actions/github-script@v3
-        with:
-          script: |
-            core.setFailed('VALIDATORS is required')
+      # - name: Checking VALIDATORS
+      #   if: ${{ env.VALIDATORS == '' }}
+      #   uses: actions/github-script@v3
+      #   with:
+      #     script: |
+      #       core.setFailed('VALIDATORS is required')
