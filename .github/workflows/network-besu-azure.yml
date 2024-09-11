@@ -307,6 +307,8 @@ jobs:
           ENV: ${{ env.ENV }} 
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
+          cat infra-requirements.yaml
+          ansible-galaxy collection install -r infra-requirements.yaml
           ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NETWORK_PLAYBOOK }} --tags="login,release,generate_keys" -vvvv
 
 
