@@ -88,40 +88,40 @@ jobs:
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           git checkout ${{ vars.BRANCH }}
           echo "Cloned Azure DevOps repository"
-  # create-namespace:
-  #   name: "create-namespace"
-  #   runs-on: [ self-hosted, azure ]
-  #   needs: [checkout-anisble-pipelines]
-  #   environment: dev-azure
-  #   steps:
-  #     - name: Running playbook to create namespace
-  #       env:
-  #         TIER: ${{ vars.TIER }}  
-  #         BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
-  #         BOOTNODES: ${{ env.BOOTNODES }}
-  #         COMPONENT_ID: ${{ env.COMPONENT_ID }}
-  #         COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
-  #         COUNTRY: ${{ env.COUNTRY }}
-  #         CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-  #         DNS_TYPE: ${{ env.DNS_TYPE }}
-  #         DNS_ZONE: ${{ env.DNS_ZONE }}
-  #         LOCATION: ${{ env.LOCATION }}
-  #         MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
-  #         NET_NAME: ${{ env.NET_NAME }}
-  #         NETWORK_ID: ${{ env.NETWORK_ID }}
-  #         NODE_COUNT: ${{ env.NODE_COUNT }}
-  #         ORGANIZATION: ${{ env.ORGANIZATION }}
-  #         QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
-  #         SUBNET_NAME: ${{ env.SUBNET_NAME }}
-  #         VALIDATORS: ${{ env.VALIDATORS }}
-  #         SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-  #         CLIENT_ID: ${{ vars.CLIENT_ID }}
-  #         TENANT_ID: ${{ vars.TENANT_ID }}
-  #         SECRET: ${{ secrets.SECRET }}
-  #         ENV: ${{ env.ENV }} 
-  #       run: |
-  #         cd ${{ vars.FOUNDATION_REPO_PATH }}
-  #         ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} -vvvv
+  create-namespace:
+    name: "create-namespace"
+    runs-on: [ self-hosted, azure ]
+    needs: [checkout-anisble-pipelines]
+    environment: dev-azure
+    steps:
+      - name: Running playbook to create namespace
+        env:
+          TIER: ${{ vars.TIER }}  
+          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
+          BOOTNODES: ${{ env.BOOTNODES }}
+          COMPONENT_ID: ${{ env.COMPONENT_ID }}
+          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
+          COUNTRY: ${{ env.COUNTRY }}
+          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
+          DNS_TYPE: ${{ env.DNS_TYPE }}
+          DNS_ZONE: ${{ env.DNS_ZONE }}
+          LOCATION: ${{ env.LOCATION }}
+          MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
+          NET_NAME: ${{ env.NET_NAME }}
+          NETWORK_ID: ${{ env.NETWORK_ID }}
+          NODE_COUNT: ${{ env.NODE_COUNT }}
+          ORGANIZATION: ${{ env.ORGANIZATION }}
+          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
+          SUBNET_NAME: ${{ env.SUBNET_NAME }}
+          VALIDATORS: ${{ env.VALIDATORS }}
+          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
+          CLIENT_ID: ${{ vars.CLIENT_ID }}
+          TENANT_ID: ${{ vars.TENANT_ID }}
+          SECRET: ${{ secrets.SECRET }}
+          ENV: ${{ env.ENV }} 
+        run: |
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} -vvvv
   create-service-principal:
     name: "create-service-principal"
     runs-on: [ self-hosted, azure ]
