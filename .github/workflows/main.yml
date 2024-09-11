@@ -12,153 +12,61 @@ on:
         description: 'Variables in json wrapped'
         required: true
 
+env:
+  BESU_CONSENSUS_ALG: ${{ fromJson(github.event.inputs.parameters).BESU_CONSENSUS_ALG || 'QBFT' }}
+  BOOTNODES: ${{ fromJson(github.event.inputs.parameters).BOOTNODES || '' }}
+  COMPONENT_ID: ${{ fromJson(github.event.inputs.parameters).COMPONENT_ID || '' }}
+  COMPONENT_NAME: ${{ fromJson(github.event.inputs.parameters).COMPONENT_NAME || '' }}
+  COUNTRY: ${{ fromJson(github.event.inputs.parameters).COUNTRY || '' }}
+  CUSTOMER_ID: ${{ fromJson(github.event.inputs.parameters).CUSTOMER_ID || '' }}
+  DNS_TYPE: ${{ fromJson(github.event.inputs.parameters).DNS_TYPE || 'public' }}
+  DNS_ZONE: ${{ fromJson(github.event.inputs.parameters).DNS_ZONE || 'blockchainlab.network' }} 
+  LOCATION: ${{ fromJson(github.event.inputs.parameters).LOCATION || '' }}
+  MIN_GAS_PRICE: ${{ fromJson(github.event.inputs.parameters).MIN_GAS_PRICE || '0' }} 
+  NET_NAME: ${{ fromJson(github.event.inputs.parameters).NET_NAME || 'ks-net' }} 
+  NETWORK_ID: ${{ fromJson(github.event.inputs.parameters).NETWORK_ID || '' }}
+  NODE_COUNT: ${{ fromJson(github.event.inputs.parameters).NODE_COUNT || '4' }} 
+  ORGANIZATION: ${{ fromJson(github.event.inputs.parameters).ORGANIZATION || '' }}
+  QUORUM_EXPLORER_IMAGE_TAG: ${{ fromJson(github.event.inputs.parameters).QUORUM_EXPLORER_IMAGE_TAG || '8091' }} 
+  SUBNET_NAME: ${{ fromJson(github.event.inputs.parameters).SUBNET_NAME || 'ks-subnet' }} 
+  VALIDATORS: ${{ fromJson(github.event.inputs.parameters).VALIDATORS || '' }}
+  ENV: ${{ fromJson(github.event.inputs.parameters).ENV || '' }}
+
 jobs:
-  set-environment-variables:
-    name: "Set Global Environment Variables"
-    runs-on: [ self-hosted, azure ]
+  create-file:
+    runs-on: ubuntu-latest
     steps:
-      - id: set-env
-        name: Export environment variables to .env file
-        run: |
-          echo "BESU_CONSENSUS_ALG=${{ fromJson(github.event.inputs.parameters).BESU_CONSENSUS_ALG || 'QBFT' }}" >> shared_env_vars.env
-          echo "BOOTNODES=${{ fromJson(github.event.inputs.parameters).BOOTNODES || '' }}" >> shared_env_vars.env
-          echo "COMPONENT_ID=${{ fromJson(github.event.inputs.parameters).COMPONENT_ID || '' }}" >> shared_env_vars.env
-          echo "COMPONENT_NAME=${{ fromJson(github.event.inputs.parameters).COMPONENT_NAME || '' }}" >> shared_env_vars.env
-          echo "COUNTRY=${{ fromJson(github.event.inputs.parameters).COUNTRY || '' }}" >> shared_env_vars.env
-          echo "CUSTOMER_ID=${{ fromJson(github.event.inputs.parameters).CUSTOMER_ID || '' }}" >> shared_env_vars.env
-          echo "DNS_TYPE=${{ fromJson(github.event.inputs.parameters).DNS_TYPE || 'public' }}" >> shared_env_vars.env
-          echo "DNS_ZONE=${{ fromJson(github.event.inputs.parameters).DNS_ZONE || 'blockchainlab.network' }}" >> shared_env_vars.env
-          echo "LOCATION=${{ fromJson(github.event.inputs.parameters).LOCATION || '' }}" >> shared_env_vars.env
-          echo "MIN_GAS_PRICE=${{ fromJson(github.event.inputs.parameters).MIN_GAS_PRICE || '0' }}" >> shared_env_vars.env
-          echo "NET_NAME=${{ fromJson(github.event.inputs.parameters).NET_NAME || 'ks-net' }}" >> shared_env_vars.env
-          echo "NETWORK_ID=${{ fromJson(github.event.inputs.parameters).NETWORK_ID || '' }}" >> shared_env_vars.env
-          echo "NODE_COUNT=${{ fromJson(github.event.inputs.parameters).NODE_COUNT || '4' }}" >> shared_env_vars.env
-          echo "ORGANIZATION=${{ fromJson(github.event.inputs.parameters).ORGANIZATION || '' }}" >> shared_env_vars.env
-          echo "QUORUM_EXPLORER_IMAGE_TAG=${{ fromJson(github.event.inputs.parameters).QUORUM_EXPLORER_IMAGE_TAG || '8091' }}" >> shared_env_vars.env
-          echo "SUBNET_NAME=${{ fromJson(github.event.inputs.parameters).SUBNET_NAME || 'ks-subnet' }}" >> shared_env_vars.env
-          echo "VALIDATORS=${{ fromJson(github.event.inputs.parameters).VALIDATORS || '' }}" >> shared_env_vars.env
-          echo "ENV=${{ fromJson(github.event.inputs.parameters).ENV || '' }}" >> shared_env_vars.env
+    - name: Create a file with environment variables
+      run: |
+        echo "COMPONENT_NAME=${{ env.COMPONENT_NAME }}" >> vars.txt
+        echo "BESU_CONSENSUS_ALG=${{ env.BESU_CONSENSUS_ALG }}" >> vars.txt
+        echo "BOOTNODES=${{ env.BOOTNODES }}" >> vars.txt
+    - name: Upload vars file
+      uses: actions/upload-artifact@v3
+      with:
+        name: vars
+        path: vars.txt
 
-      - name: Upload environment variables as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: shared-env-vars
-          path: shared_env_vars.env
-
-  check-required-env-variables:
-    name: "required-env-variables"
-    runs-on: [ self-hosted, azure ]
-    needs: [set-environment-variables]
-    environment: dev
+  read-file:
+    runs-on: ubuntu-latest
+    needs: create-file
     steps:
-      - name: Download environment variables artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: shared-env-vars
-          path: .
+    - name: Download vars file
+      uses: actions/download-artifact@v3
+      with:
+        name: vars
+    - name: Read the file
+      run: cat vars.txt
 
-      - name: Load .env
-        run: |
-          source shared_env_vars.env
-          printenv | grep BESU_CONSENSUS_ALG
-          printenv | grep BOOTNODES
-          printenv | grep COMPONENT_ID
-          printenv | grep COMPONENT_NAME
-          printenv | grep COUNTRY
-          printenv | grep CUSTOMER_ID
-          printenv | grep DNS_TYPE
-          printenv | grep DNS_ZONE
-          printenv | grep LOCATION
-          printenv | grep MIN_GAS_PRICE
-          printenv | grep NET_NAME
-          printenv | grep NETWORK_ID
-          printenv | grep NODE_COUNT
-          printenv | grep ORGANIZATION
-          printenv | grep QUORUM_EXPLORER_IMAGE_TAG
-          printenv | grep SUBNET_NAME
-          printenv | grep VALIDATORS
-          printenv | grep ENV
-
-      - name: Checking BOOTNODES
-        if: ${{ env.BOOTNODES == '' }}
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('BOOTNODES is required')
-
-      - name: Checking COMPONENT_ID
-        if: ${{ env.COMPONENT_ID == '' }}
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('COMPONENT_ID is required')
-
-      - name: Checking COMPONENT_NAME
-        if: ${{ env.COMPONENT_NAME == '' }}
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('COMPONENT_NAME is required')
-
-      - name: Checking CUSTOMER_ID
-        if: ${{ env.CUSTOMER_ID == '' }}
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('CUSTOMER_ID is required')
-
-      - name: Checking NETWORK_ID
-        if: ${{ env.NETWORK_ID == '' }}
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('NETWORK_ID is required')
-
-      - name: Checking VALIDATORS
-        if: ${{ env.VALIDATORS == '' }}
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('VALIDATORS is required')
-
-  checkout-anisble-pipelines:
-    name: "checkout-ansible-pipelines"
-    runs-on: [ self-hosted, azure ]
-    needs: [check-required-env-variables]
-    environment: dev-azure
+  read-bootnodes:
+    runs-on: ubuntu-latest
+    needs: create-file
     steps:
-      - name: Checkout Azure DevOps repo
-        env:
-          AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
-        run: |
-          rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
-          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
-          cd ${{ vars.FOUNDATION_REPO_PATH }}
-          git checkout ${{ vars.BRANCH }}
-          echo "Cloned Azure DevOps repository"
-
-  create-namespace:
-    name: "create-namespace"
-    runs-on: [ self-hosted, azure ]
-    needs: [checkout-anisble-pipelines]
-    environment: dev-azure
-    steps:
-      - name: Download environment variables artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: shared-env-vars
-          path: .
-
-      - name: Load .env
-        run: source shared_env_vars.env
-
-      - name: Running playbook to create namespace
-        env:
-          TIER: ${{ vars.TIER }}
-          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-          CLIENT_ID: ${{ vars.CLIENT_ID }}
-          TENANT_ID: ${{ vars.TENANT_ID }}
-          SECRET: ${{ secrets.SECRET }}
-        run: |
-          cd ${{ vars.FOUNDATION_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} -vvvv
+    - name: Download vars file
+      uses: actions/download-artifact@v3
+      with:
+        name: vars
+    - name: Read BOOTNODES value
+      run: |
+        BOOTNODES=$(grep "BOOTNODES" vars.txt | cut -d'=' -f2)
+        echo "BOOTNODES is: $BOOTNODES"
