@@ -34,7 +34,7 @@ env:
 jobs:
   check-required-env-variables:
     name: "required-env-variables"
-    runs-on: self-hosted
+    runs-on: [ self-hosted, azure ]
     environment: dev
     steps:
       - name: Checking BOOTNODES
@@ -75,7 +75,7 @@ jobs:
               core.setFailed('VALIDATORS is required')                  
   checkout-anisble-pipelines:
     name: "checkout-ansible-pipelines"
-    runs-on: self-hosted
+    runs-on: [ self-hosted, azure ]
     needs: [check-required-env-variables]
     environment: dev-azure
     steps:
@@ -86,13 +86,11 @@ jobs:
           rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
           git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
           cd ${{ vars.FOUNDATION_REPO_PATH }}
-          echo "Running copy of sa-key.json"
-          echo "${{ secrets.SAKEY }}" >> sa-key.json
           git checkout ${{ vars.BRANCH }}
           echo "Cloned Azure DevOps repository"
   create-namespace:
     name: "create-namespace"
-    runs-on: self-hosted
+    runs-on: [ self-hosted, azure ]
     needs: [checkout-anisble-pipelines]
     environment: dev-azure
     steps:
@@ -119,24 +117,167 @@ jobs:
           ENV: ${{ env.ENV }} 
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} --tags ${{ vars.TAGS }} -vvvv
-          echo "Cloned Azure DevOps repository"          
-  buildImage:
-    permissions:
-      contents: read
-      id-token: write
-    runs-on: self-hosted
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} -vvvv
+  create-service-principal:
+    name: "create-service-principal"
+    runs-on: [ self-hosted, azure ]
     needs: [create-namespace]
     environment: dev-azure
     steps:
-      # Checks out the repository this file is in
-      - uses: actions/checkout@v4
+      - name: Running playbook to create service principal
+        env:
+          TIER: ${{ vars.TIER }}  
+          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
+          BOOTNODES: ${{ env.BOOTNODES }}
+          COMPONENT_ID: ${{ env.COMPONENT_ID }}
+          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
+          COUNTRY: ${{ env.COUNTRY }}
+          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
+          DNS_TYPE: ${{ env.DNS_TYPE }}
+          DNS_ZONE: ${{ env.DNS_ZONE }}
+          LOCATION: ${{ env.LOCATION }}
+          MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
+          NET_NAME: ${{ env.NET_NAME }}
+          NETWORK_ID: ${{ env.NETWORK_ID }}
+          NODE_COUNT: ${{ env.NODE_COUNT }}
+          ORGANIZATION: ${{ env.ORGANIZATION }}
+          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
+          SUBNET_NAME: ${{ env.SUBNET_NAME }}
+          VALIDATORS: ${{ env.VALIDATORS }}
+          ENV: ${{ env.ENV }} 
+        run: |
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.SP_PLAYBOOK }} -vvvv
+  create-database:
+    name: "create-database"
+    runs-on: [ self-hosted, azure ]
+    needs: [ccreate-service-principal]
+    environment: dev-azure
+    steps:
+      - name: Running playbook to create database
+        env:
+          TIER: ${{ vars.TIER }}  
+          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
+          BOOTNODES: ${{ env.BOOTNODES }}
+          COMPONENT_ID: ${{ env.COMPONENT_ID }}
+          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
+          COUNTRY: ${{ env.COUNTRY }}
+          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
+          DNS_TYPE: ${{ env.DNS_TYPE }}
+          DNS_ZONE: ${{ env.DNS_ZONE }}
+          LOCATION: ${{ env.LOCATION }}
+          MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
+          NET_NAME: ${{ env.NET_NAME }}
+          NETWORK_ID: ${{ env.NETWORK_ID }}
+          NODE_COUNT: ${{ env.NODE_COUNT }}
+          ORGANIZATION: ${{ env.ORGANIZATION }}
+          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
+          SUBNET_NAME: ${{ env.SUBNET_NAME }}
+          VALIDATORS: ${{ env.VALIDATORS }}
+          ENV: ${{ env.ENV }} 
+        run: |
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.DATABASE_PLAYBOOK }} -vvvv
+  create-storage:
+    name: "create-storage"
+    runs-on: [ self-hosted, azure ]
+    needs: [ccreate-service-principal]
+    environment: dev-azure
+    steps:
+      - name: Running playbook to create storage
+        env:
+          TIER: ${{ vars.TIER }}  
+          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
+          BOOTNODES: ${{ env.BOOTNODES }}
+          COMPONENT_ID: ${{ env.COMPONENT_ID }}
+          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
+          COUNTRY: ${{ env.COUNTRY }}
+          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
+          DNS_TYPE: ${{ env.DNS_TYPE }}
+          DNS_ZONE: ${{ env.DNS_ZONE }}
+          LOCATION: ${{ env.LOCATION }}
+          MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
+          NET_NAME: ${{ env.NET_NAME }}
+          NETWORK_ID: ${{ env.NETWORK_ID }}
+          NODE_COUNT: ${{ env.NODE_COUNT }}
+          ORGANIZATION: ${{ env.ORGANIZATION }}
+          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
+          SUBNET_NAME: ${{ env.SUBNET_NAME }}
+          VALIDATORS: ${{ env.VALIDATORS }}
+          ENV: ${{ env.ENV }} 
+        run: |
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.STORAGE_PLAYBOOK }} -vvvv
+  create-keyvault:
+    name: "create-keyvault"
+    runs-on: [ self-hosted, azure ]
+    needs: [ccreate-service-principal]
+    environment: dev-azure
+    steps:
+      - name: Running playbook to create keyvault
+        env:
+          TIER: ${{ vars.TIER }}  
+          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
+          BOOTNODES: ${{ env.BOOTNODES }}
+          COMPONENT_ID: ${{ env.COMPONENT_ID }}
+          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
+          COUNTRY: ${{ env.COUNTRY }}
+          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
+          DNS_TYPE: ${{ env.DNS_TYPE }}
+          DNS_ZONE: ${{ env.DNS_ZONE }}
+          LOCATION: ${{ env.LOCATION }}
+          MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
+          NET_NAME: ${{ env.NET_NAME }}
+          NETWORK_ID: ${{ env.NETWORK_ID }}
+          NODE_COUNT: ${{ env.NODE_COUNT }}
+          ORGANIZATION: ${{ env.ORGANIZATION }}
+          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
+          SUBNET_NAME: ${{ env.SUBNET_NAME }}
+          VALIDATORS: ${{ env.VALIDATORS }}
+          ENV: ${{ env.ENV }} 
+        run: |
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.KEYVAULT_PLAYBOOK }} -vvvv
+  generate-network:
+    name: "generate-network"
+    runs-on: [ self-hosted, azure ]
+    needs: [create-keyvault, create-storage, create-database]
+    environment: dev-azure
+    steps:
+      - name: Checkout Azure DevOps repo
+        env:
+          AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
+        run: |
+          rm -rf ${{ vars.BESU_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.BESU_REPO_URL }}
+          cd ${{ vars.BESU_REPO_PATH }}
+          git checkout ${{ vars.BRANCH }}
+          echo "Cloned Azure DevOps repository"    
+      - name: Running playbook to generate network
+        env:
+          TIER: ${{ vars.TIER }}  
+          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
+          BOOTNODES: ${{ env.BOOTNODES }}
+          COMPONENT_ID: ${{ env.COMPONENT_ID }}
+          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
+          COUNTRY: ${{ env.COUNTRY }}
+          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
+          DNS_TYPE: ${{ env.DNS_TYPE }}
+          DNS_ZONE: ${{ env.DNS_ZONE }}
+          LOCATION: ${{ env.LOCATION }}
+          MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
+          NET_NAME: ${{ env.NET_NAME }}
+          NETWORK_ID: ${{ env.NETWORK_ID }}
+          NODE_COUNT: ${{ env.NODE_COUNT }}
+          ORGANIZATION: ${{ env.ORGANIZATION }}
+          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
+          SUBNET_NAME: ${{ env.SUBNET_NAME }}
+          VALIDATORS: ${{ env.VALIDATORS }}
+          ENV: ${{ env.ENV }} 
+        run: |
+          cd ${{ vars.BESU_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NETWORK_PLAYBOOK }} --tags="login,release,generate_keys" -vvvv
 
-      # Logs in with your Azure credentials
-      - name: Azure login
-        uses: azure/login@v1.4.6
-        with:
-          client-id: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
-          tenant-id: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
-          subscription-id: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
+
+
 
