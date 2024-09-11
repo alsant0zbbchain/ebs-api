@@ -273,9 +273,10 @@ jobs:
           cd ${{ vars.BESU_REPO_PATH }}
           git checkout ${{ vars.BRANCH }}
           echo "Cloned Azure DevOps repository"   
+          cat infra-requirements.yaml
       - uses: cschleiden/replace-tokens@v1
         with:
-          tokenPrefix: '{'
+          tokenPrefix: '${'
           tokenSuffix: '}'
           files: '["**/infra-requirements.yaml"]'
         env:
