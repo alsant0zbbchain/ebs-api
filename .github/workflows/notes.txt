@@ -12,32 +12,27 @@ on:
         description: 'Variables in json wrapped'
         required: true
 
-jobs:
-  set-environment-variables:
-    name: "Set Global Environment Variables"
-    runs-on: self-hosted
-    steps:
-      - name: Export environment variables globally
-        run: |
-          echo "BESU_CONSENSUS_ALG=${{ fromJson(github.event.inputs.parameters).BESU_CONSENSUS_ALG || 'QBFT' }}" >> $GITHUB_ENV
-          echo "BOOTNODES=${{ fromJson(github.event.inputs.parameters).BOOTNODES || '' }}" >> $GITHUB_ENV
-          echo "COMPONENT_ID=${{ fromJson(github.event.inputs.parameters).COMPONENT_ID || '' }}" >> $GITHUB_ENV
-          echo "COMPONENT_NAME=${{ fromJson(github.event.inputs.parameters).COMPONENT_NAME || '' }}" >> $GITHUB_ENV
-          echo "COUNTRY=${{ fromJson(github.event.inputs.parameters).COUNTRY || '' }}" >> $GITHUB_ENV
-          echo "CUSTOMER_ID=${{ fromJson(github.event.inputs.parameters).CUSTOMER_ID || '' }}" >> $GITHUB_ENV
-          echo "DNS_TYPE=${{ fromJson(github.event.inputs.parameters).DNS_TYPE || 'public' }}" >> $GITHUB_ENV
-          echo "DNS_ZONE=${{ fromJson(github.event.inputs.parameters).DNS_ZONE || 'blockchainlab.network' }}" >> $GITHUB_ENV
-          echo "LOCATION=${{ fromJson(github.event.inputs.parameters).LOCATION || '' }}" >> $GITHUB_ENV
-          echo "MIN_GAS_PRICE=${{ fromJson(github.event.inputs.parameters).MIN_GAS_PRICE || '0' }}" >> $GITHUB_ENV
-          echo "NET_NAME=${{ fromJson(github.event.inputs.parameters).NET_NAME || 'ks-net' }}" >> $GITHUB_ENV
-          echo "NETWORK_ID=${{ fromJson(github.event.inputs.parameters).NETWORK_ID || '' }}" >> $GITHUB_ENV
-          echo "NODE_COUNT=${{ fromJson(github.event.inputs.parameters).NODE_COUNT || '4' }}" >> $GITHUB_ENV
-          echo "ORGANIZATION=${{ fromJson(github.event.inputs.parameters).ORGANIZATION || '' }}" >> $GITHUB_ENV
-          echo "QUORUM_EXPLORER_IMAGE_TAG=${{ fromJson(github.event.inputs.parameters).QUORUM_EXPLORER_IMAGE_TAG || '8091' }}" >> $GITHUB_ENV
-          echo "SUBNET_NAME=${{ fromJson(github.event.inputs.parameters).SUBNET_NAME || 'ks-subnet' }}" >> $GITHUB_ENV
-          echo "VALIDATORS=${{ fromJson(github.event.inputs.parameters).VALIDATORS || '' }}" >> $GITHUB_ENV
-          echo "ENV=${{ fromJson(github.event.inputs.parameters).ENV || '' }}" >> $GITHUB_ENV
+env:
+  BESU_CONSENSUS_ALG: ${{ fromJson(github.event.inputs.parameters).BESU_CONSENSUS_ALG || 'QBFT' }}
+  BOOTNODES: ${{ fromJson(github.event.inputs.parameters).BOOTNODES || '' }}
+  COMPONENT_ID: ${{ fromJson(github.event.inputs.parameters).COMPONENT_ID || '' }}
+  COMPONENT_NAME: ${{ fromJson(github.event.inputs.parameters).COMPONENT_NAME || '' }}
+  COUNTRY: ${{ fromJson(github.event.inputs.parameters).COUNTRY || '' }}
+  CUSTOMER_ID: ${{ fromJson(github.event.inputs.parameters).CUSTOMER_ID || '' }}
+  DNS_TYPE: ${{ fromJson(github.event.inputs.parameters).DNS_TYPE || 'public' }}
+  DNS_ZONE: ${{ fromJson(github.event.inputs.parameters).DNS_ZONE || 'blockchainlab.network' }} 
+  LOCATION: ${{ fromJson(github.event.inputs.parameters).LOCATION || '' }}
+  MIN_GAS_PRICE: ${{ fromJson(github.event.inputs.parameters).MIN_GAS_PRICE || '0' }} 
+  NET_NAME: ${{ fromJson(github.event.inputs.parameters).NET_NAME || 'ks-net' }} 
+  NETWORK_ID: ${{ fromJson(github.event.inputs.parameters).NETWORK_ID || '' }}
+  NODE_COUNT: ${{ fromJson(github.event.inputs.parameters).NODE_COUNT || '4' }} 
+  ORGANIZATION: ${{ fromJson(github.event.inputs.parameters).ORGANIZATION || '' }}
+  QUORUM_EXPLORER_IMAGE_TAG: ${{ fromJson(github.event.inputs.parameters).QUORUM_EXPLORER_IMAGE_TAG || '8091' }} 
+  SUBNET_NAME: ${{ fromJson(github.event.inputs.parameters).SUBNET_NAME || 'ks-subnet' }} 
+  VALIDATORS: ${{ fromJson(github.event.inputs.parameters).VALIDATORS || '' }}
+  ENV: ${{ fromJson(github.event.inputs.parameters).ENV || '' }}
 
+jobs:
   check-required-env-variables:
     name: "required-env-variables"
     runs-on: self-hosted
