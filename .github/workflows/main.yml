@@ -38,16 +38,31 @@ jobs:
     steps:
     - name: Create a file with environment variables
       run: |
-        echo "COMPONENT_NAME=${{ env.COMPONENT_NAME }}" >> vars.txt
         echo "BESU_CONSENSUS_ALG=${{ env.BESU_CONSENSUS_ALG }}" >> vars.txt
         echo "BOOTNODES=${{ env.BOOTNODES }}" >> vars.txt
+        echo "COMPONENT_ID=${{ env.COMPONENT_ID }}" >> vars.txt
+        echo "COMPONENT_NAME=${{ env.COMPONENT_NAME }}" >> vars.txt
+        echo "COUNTRY=${{ env.COUNTRY }}" >> vars.txt
+        echo "CUSTOMER_ID=${{ env.CUSTOMER_ID }}" >> vars.txt
+        echo "DNS_TYPE=${{ env.DNS_TYPE }}" >> vars.txt
+        echo "DNS_ZONE=${{ env.DNS_ZONE }}" >> vars.txt
+        echo "LOCATION=${{ env.LOCATION }}" >> vars.txt
+        echo "MIN_GAS_PRICE=${{ env.MIN_GAS_PRICE }}" >> vars.txt
+        echo "NET_NAME=${{ env.NET_NAME }}" >> vars.txt
+        echo "NETWORK_ID=${{ env.NETWORK_ID }}" >> vars.txt
+        echo "NODE_COUNT=${{ env.NODE_COUNT }}" >> vars.txt
+        echo "ORGANIZATION=${{ env.ORGANIZATION }}" >> vars.txt
+        echo "QUORUM_EXPLORER_IMAGE_TAG=${{ env.QUORUM_EXPLORER_IMAGE_TAG }}" >> vars.txt
+        echo "SUBNET_NAME=${{ env.SUBNET_NAME }}" >> vars.txt
+        echo "VALIDATORS=${{ env.VALIDATORS }}" >> vars.txt
+        echo "ENV=${{ env.ENV }}" >> vars.txt
     - name: Upload vars file
       uses: actions/upload-artifact@v3
       with:
         name: vars
         path: vars.txt
 
-  read-file:
+  test-read-file:
     runs-on: ubuntu-latest
     needs: create-file
     steps:
@@ -58,7 +73,7 @@ jobs:
     - name: Read the file
       run: cat vars.txt
 
-  read-bootnodes:
+  test-read-bootnodes:
     runs-on: ubuntu-latest
     needs: create-file
     steps:
@@ -70,3 +85,55 @@ jobs:
       run: |
         BOOTNODES=$(grep "BOOTNODES" vars.txt | cut -d'=' -f2)
         echo "BOOTNODES is: $BOOTNODES"
+
+  check-required-env-variables:
+    name: "required-env-variables"
+    runs-on: self-hosted
+    environment: dev
+    needs: create-file
+    steps:
+      - name: Download vars file
+        uses: actions/download-artifact@v3
+        with:
+          name: vars
+      - name: Export environment variables from vars.txt
+        run: |
+          set -a
+          source vars.txt
+          set +a
+      - name: Checking BOOTNODES
+        if: ${{ env.BOOTNODES == '' }}
+        uses: actions/github-script@v3
+        with:
+          script: |
+            core.setFailed('BOOTNODES is required')
+      - name: Checking COMPONENT_ID
+        if: ${{ env.COMPONENT_ID == '' }}
+        uses: actions/github-script@v3
+        with:
+          script: |
+            core.setFailed('COMPONENT_ID is required') 
+      - name: Checking COMPONENT_NAME
+        if: ${{ env.COMPONENT_NAME == '' }}
+        uses: actions/github-script@v3
+        with:
+          script: |
+            core.setFailed('COMPONENT_NAME is required')     
+      - name: Checking CUSTOMER_ID
+        if: ${{ env.CUSTOMER_ID == '' }}
+        uses: actions/github-script@v3
+        with:
+          script: |
+            core.setFailed('CUSTOMER_ID is required') 
+      - name: Checking NETWORK_ID
+        if: ${{ env.NETWORK_ID == '' }}
+        uses: actions/github-script@v3
+        with:
+          script: |
+            core.setFailed('NETWORK_ID is required')        
+      - name: Checking VALIDATORS
+        if: ${{ env.VALIDATORS == '' }}
+        uses: actions/github-script@v3
+        with:
+          script: |
+            core.setFailed('VALIDATORS is required')
