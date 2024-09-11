@@ -17,6 +17,10 @@ jobs:
     name: "Set Global Environment Variables"
     runs-on: self-hosted
     steps:
+      - name: Print event inputs
+        run: |
+          echo "Event Inputs: ${{ toJson(github.event.inputs) }}"
+
       - name: Export environment variables globally
         run: |
           echo "BESU_CONSENSUS_ALG=${{ fromJson(github.event.inputs.parameters).BESU_CONSENSUS_ALG || 'QBFT' }}" >> $GITHUB_ENV
@@ -37,25 +41,24 @@ jobs:
           echo "SUBNET_NAME=${{ fromJson(github.event.inputs.parameters).SUBNET_NAME || 'ks-subnet' }}" >> $GITHUB_ENV
           echo "VALIDATORS=${{ fromJson(github.event.inputs.parameters).VALIDATORS || '' }}" >> $GITHUB_ENV
           echo "ENV=${{ fromJson(github.event.inputs.parameters).ENV || '' }}" >> $GITHUB_ENV
+
       - name: List all environment variables
         run: printenv
-        
+
+      - name: Check exported BOOTNODES value
+        run: echo "Exported BOOTNODES: $BOOTNODES"        
 
   check-required-env-variables:
     name: "required-env-variables"
     runs-on: self-hosted
     environment: dev
     steps:
-      - name: Print BOOTNODES value
-        run: echo "BOOTNODES=$BOOTNODES"
-    
       - name: Checking BOOTNODES
-        if: ${{ !env.BOOTNODES }}
+        if: ${{ env.BOOTNODES == '' }} 
         uses: actions/github-script@v3
         with:
           script: |
-            core.setFailed('BOOTNODES is required')
-
+              core.setFailed('BOOTNODES is required')
       - name: Checking COMPONENT_ID
         if: ${{ env.COMPONENT_ID == '' }} 
         uses: actions/github-script@v3
