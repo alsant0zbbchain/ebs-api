@@ -45,7 +45,7 @@ jobs:
           secrets: ${{ toJSON(secrets) }}       
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
-          secrets: ${{ parameters }}                       
+          secrets: ${{ github.event.inputs.parameters }}                       
       - run: | 
           echo "Value of CUSTOMER_ID: $CUSTOMER_ID"    
       - run: | 
