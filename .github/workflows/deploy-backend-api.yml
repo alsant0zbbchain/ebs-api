@@ -96,9 +96,9 @@ jobs:
           secrets: ${{ github.event.inputs.parameters }}    
       - name: Installing collection
         run: |
-          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          cd ${{ vars.BESU_REPO_PATH }}
           ansible-galaxy collection install -r infra-requirements.yaml -vvvv
       - name: Deploy API
         run: |
-          cd ${{ vars.FOUNDATION_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} --tags="login,api_deploy" -vvvv
+          cd ${{ vars.BESU_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="login,api_deploy" -vvvv
