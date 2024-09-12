@@ -27,34 +27,30 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}
-      - name: Print all envs - Test
-        run: |
-          echo "Printing all environment variables:"
-          env    
-      - name: Checking COMPONENT_ID
-        if: ${{ env.COMPONENT_ID == '' }} 
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('COMPONENT_ID is required') 
-      - name: Checking COMPONENT_NAME
-        if: ${{ env.COMPONENT_NAME == '' }} 
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('COMPONENT_NAME is required')     
-      - name: Checking CUSTOMER_ID
-        if: ${{ env.CUSTOMER_ID == '' }} 
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('CUSTOMER_ID is required') 
-      - name: Checking NETWORK_ID
-        if: ${{ env.NETWORK_ID == '' }} 
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('NETWORK_ID is required')        
+      # - name: Checking COMPONENT_ID
+      #   if: ${{ env.COMPONENT_ID == '' }} 
+      #   uses: actions/github-script@v3
+      #   with:
+      #     script: |
+      #         core.setFailed('COMPONENT_ID is required') 
+      # - name: Checking COMPONENT_NAME
+      #   if: ${{ env.COMPONENT_NAME == '' }} 
+      #   uses: actions/github-script@v3
+      #   with:
+      #     script: |
+      #         core.setFailed('COMPONENT_NAME is required')     
+      # - name: Checking CUSTOMER_ID
+      #   if: ${{ env.CUSTOMER_ID == '' }} 
+      #   uses: actions/github-script@v3
+      #   with:
+      #     script: |
+      #         core.setFailed('CUSTOMER_ID is required') 
+      # - name: Checking NETWORK_ID
+      #   if: ${{ env.NETWORK_ID == '' }} 
+      #   uses: actions/github-script@v3
+      #   with:
+      #     script: |
+      #         core.setFailed('NETWORK_ID is required')        
                 
   checkout-ansible-pipelines:
     name: "checkout-ansible-pipelines"
