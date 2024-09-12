@@ -1,4 +1,4 @@
-name: Hyperledger Besu Network Azure
+name: Hyperledger Besu Network Azure - Tear Down
 run-name: ${{ inputs.identifier }}
 
 on:
@@ -13,22 +13,14 @@ on:
         required: true
 env:
   BESU_CONSENSUS_ALG: ${{ fromJson(github.event.inputs.parameters).BESU_CONSENSUS_ALG || 'QBFT' }}
-  BOOTNODES: ${{ fromJson(github.event.inputs.parameters).BOOTNODES || '' }}
   COMPONENT_ID: ${{ fromJson(github.event.inputs.parameters).COMPONENT_ID || '' }}
   COMPONENT_NAME: ${{ fromJson(github.event.inputs.parameters).COMPONENT_NAME || '' }}
   COUNTRY: ${{ fromJson(github.event.inputs.parameters).COUNTRY || '' }}
   CUSTOMER_ID: ${{ fromJson(github.event.inputs.parameters).CUSTOMER_ID || '' }}
-  DNS_TYPE: ${{ fromJson(github.event.inputs.parameters).DNS_TYPE || 'public' }}
   DNS_ZONE: ${{ fromJson(github.event.inputs.parameters).DNS_ZONE || 'blockchainlab.network' }} 
   LOCATION: ${{ fromJson(github.event.inputs.parameters).LOCATION || '' }}
-  MIN_GAS_PRICE: ${{ fromJson(github.event.inputs.parameters).MIN_GAS_PRICE || '0' }} 
-  NET_NAME: ${{ fromJson(github.event.inputs.parameters).NET_NAME || 'ks-net' }} 
   NETWORK_ID: ${{ fromJson(github.event.inputs.parameters).NETWORK_ID || '' }}
-  NODE_COUNT: ${{ fromJson(github.event.inputs.parameters).NODE_COUNT || '4' }} 
   ORGANIZATION: ${{ fromJson(github.event.inputs.parameters).ORGANIZATION || '' }}
-  QUORUM_EXPLORER_IMAGE_TAG: ${{ fromJson(github.event.inputs.parameters).QUORUM_EXPLORER_IMAGE_TAG || '8091' }} 
-  SUBNET_NAME: ${{ fromJson(github.event.inputs.parameters).SUBNET_NAME || 'ks-subnet' }} 
-  VALIDATORS: ${{ fromJson(github.event.inputs.parameters).VALIDATORS || '' }}
   ENV: ${{ fromJson(github.event.inputs.parameters).ENV || '' }}
 
 jobs:
@@ -37,12 +29,6 @@ jobs:
     runs-on: [ self-hosted, azure ]
     environment: dev
     steps:
-      - name: Checking BOOTNODES
-        if: ${{ env.BOOTNODES == '' }} 
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('BOOTNODES is required')
       - name: Checking COMPONENT_ID
         if: ${{ env.COMPONENT_ID == '' }} 
         uses: actions/github-script@v3
@@ -66,13 +52,22 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('NETWORK_ID is required')        
-      - name: Checking VALIDATORS
-        if: ${{ env.VALIDATORS == '' }} 
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('VALIDATORS is required')                  
+              core.setFailed('NETWORK_ID is required')                   
+  checkout-anisble-pipelines-besu:
+    name: "checkout-ansible-pipelines-besu"
+    runs-on: [ self-hosted, azure ]
+    needs: [check-required-env-variables]
+    environment: dev-azure
+    steps:
+      - name: Checkout Azure DevOps repo
+        env:
+          AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
+        run: |
+          rm -rf ${{ vars.BESU_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.BESU_REPO_URL }}
+          cd ${{ vars.BESU_REPO_PATH }}
+          git checkout ${{ vars.BRANCH }}
+          echo "Cloned Azure DevOps repository"   
   checkout-anisble-pipelines:
     name: "checkout-ansible-pipelines"
     runs-on: [ self-hosted, azure ]
@@ -87,248 +82,13 @@ jobs:
           git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           git checkout ${{ vars.BRANCH }}
-          echo "Cloned Azure DevOps repository"
-  create-namespace:
-    name: "create-namespace"
+          echo "Cloned Azure DevOps repository"          
+  drop-explorer:
+    name: "drop-explorer"
     runs-on: [ self-hosted, azure ]
-    needs: [checkout-anisble-pipelines]
+    needs: [checkout-anisble-pipelines, checkout-anisble-pipelines-besu]
     environment: dev-azure
     steps:
-      - name: Running playbook to create namespace
-        env:
-          TIER: ${{ vars.TIER }}  
-          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
-          BOOTNODES: ${{ env.BOOTNODES }}
-          COMPONENT_ID: ${{ env.COMPONENT_ID }}
-          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
-          COUNTRY: ${{ env.COUNTRY }}
-          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-          DNS_TYPE: ${{ env.DNS_TYPE }}
-          DNS_ZONE: ${{ env.DNS_ZONE }}
-          LOCATION: ${{ env.LOCATION }}
-          MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
-          NET_NAME: ${{ env.NET_NAME }}
-          NETWORK_ID: ${{ env.NETWORK_ID }}
-          NODE_COUNT: ${{ env.NODE_COUNT }}
-          ORGANIZATION: ${{ env.ORGANIZATION }}
-          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
-          SUBNET_NAME: ${{ env.SUBNET_NAME }}
-          VALIDATORS: ${{ env.VALIDATORS }}
-          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-          CLIENT_ID: ${{ vars.CLIENT_ID }}
-          TENANT_ID: ${{ vars.TENANT_ID }}
-          SECRET: ${{ secrets.SECRET }}
-          RG_NAME: ${{ vars.RG_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          AKS_NAME: ${{ secrets.AKS_NAME }}
-          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
-          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
-          RG_REGION: ${{ vars.RG_REGION }}
-          VMSS_NAME: ${{ vars.VMSS_NAME }}
-          ENV: ${{ env.ENV }} 
-        run: |
-          cd ${{ vars.FOUNDATION_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} -vvvv
-  create-service-principal:
-    name: "create-service-principal"
-    runs-on: [ self-hosted, azure ]
-    needs: [create-namespace]
-    environment: dev-azure
-    steps:
-      - name: Running playbook to create service principal
-        env:
-          TIER: ${{ vars.TIER }}  
-          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
-          BOOTNODES: ${{ env.BOOTNODES }}
-          COMPONENT_ID: ${{ env.COMPONENT_ID }}
-          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
-          COUNTRY: ${{ env.COUNTRY }}
-          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-          DNS_TYPE: ${{ env.DNS_TYPE }}
-          DNS_ZONE: ${{ env.DNS_ZONE }}
-          LOCATION: ${{ env.LOCATION }}
-          MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
-          NET_NAME: ${{ env.NET_NAME }}
-          NETWORK_ID: ${{ env.NETWORK_ID }}
-          NODE_COUNT: ${{ env.NODE_COUNT }}
-          ORGANIZATION: ${{ env.ORGANIZATION }}
-          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
-          SUBNET_NAME: ${{ env.SUBNET_NAME }}
-          VALIDATORS: ${{ env.VALIDATORS }}
-          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-          CLIENT_ID: ${{ vars.CLIENT_ID }}
-          TENANT_ID: ${{ vars.TENANT_ID }}
-          SECRET: ${{ secrets.SECRET }}
-          RG_NAME: ${{ vars.RG_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          AKS_NAME: ${{ secrets.AKS_NAME }}
-          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
-          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
-          RG_REGION: ${{ vars.RG_REGION }}
-          VMSS_NAME: ${{ vars.VMSS_NAME }}
-          ENV: ${{ env.ENV }} 
-        run: |
-          cd ${{ vars.FOUNDATION_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.SP_PLAYBOOK }} -vvvv
-  create-database:
-    name: "create-database"
-    runs-on: [ self-hosted, azure ]
-    needs: [create-service-principal]
-    environment: dev-azure
-    steps:
-      - name: Running playbook to create database
-        env:
-          TIER: ${{ vars.TIER }}  
-          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
-          BOOTNODES: ${{ env.BOOTNODES }}
-          COMPONENT_ID: ${{ env.COMPONENT_ID }}
-          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
-          COUNTRY: ${{ env.COUNTRY }}
-          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-          DNS_TYPE: ${{ env.DNS_TYPE }}
-          DNS_ZONE: ${{ env.DNS_ZONE }}
-          LOCATION: ${{ env.LOCATION }}
-          MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
-          NET_NAME: ${{ env.NET_NAME }}
-          NETWORK_ID: ${{ env.NETWORK_ID }}
-          NODE_COUNT: ${{ env.NODE_COUNT }}
-          ORGANIZATION: ${{ env.ORGANIZATION }}
-          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
-          SUBNET_NAME: ${{ env.SUBNET_NAME }}
-          VALIDATORS: ${{ env.VALIDATORS }}
-          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-          CLIENT_ID: ${{ vars.CLIENT_ID }}
-          TENANT_ID: ${{ vars.TENANT_ID }}
-          SECRET: ${{ secrets.SECRET }}
-          RG_NAME: ${{ vars.RG_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          AKS_NAME: ${{ secrets.AKS_NAME }}
-          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
-          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
-          RG_REGION: ${{ vars.RG_REGION }}
-          VMSS_NAME: ${{ vars.VMSS_NAME }}
-          ENV: ${{ env.ENV }} 
-        run: |
-          cd ${{ vars.FOUNDATION_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.DATABASE_PLAYBOOK }} -vvvv
-  create-storage:
-    name: "create-storage"
-    runs-on: [ self-hosted, azure ]
-    needs: [create-service-principal]
-    environment: dev-azure
-    steps:
-      - name: Running playbook to create storage
-        env:
-          TIER: ${{ vars.TIER }}  
-          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
-          BOOTNODES: ${{ env.BOOTNODES }}
-          COMPONENT_ID: ${{ env.COMPONENT_ID }}
-          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
-          COUNTRY: ${{ env.COUNTRY }}
-          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-          DNS_TYPE: ${{ env.DNS_TYPE }}
-          DNS_ZONE: ${{ env.DNS_ZONE }}
-          LOCATION: ${{ env.LOCATION }}
-          MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
-          NET_NAME: ${{ env.NET_NAME }}
-          NETWORK_ID: ${{ env.NETWORK_ID }}
-          NODE_COUNT: ${{ env.NODE_COUNT }}
-          ORGANIZATION: ${{ env.ORGANIZATION }}
-          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
-          SUBNET_NAME: ${{ env.SUBNET_NAME }}
-          VALIDATORS: ${{ env.VALIDATORS }}
-          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-          CLIENT_ID: ${{ vars.CLIENT_ID }}
-          TENANT_ID: ${{ vars.TENANT_ID }}
-          SECRET: ${{ secrets.SECRET }}
-          RG_NAME: ${{ vars.RG_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          AKS_NAME: ${{ secrets.AKS_NAME }}
-          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
-          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
-          RG_REGION: ${{ vars.RG_REGION }}
-          VMSS_NAME: ${{ vars.VMSS_NAME }}
-          ENV: ${{ env.ENV }}         
-        run: |
-          cd ${{ vars.FOUNDATION_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.STORAGE_PLAYBOOK }} -vvvv
-  create-keyvault:
-    name: "create-keyvault"
-    runs-on: [ self-hosted, azure ]
-    needs: [create-service-principal]
-    environment: dev-azure
-    steps:
-      - name: Running playbook to create keyvault
-        env:
-          TIER: ${{ vars.TIER }}  
-          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
-          BOOTNODES: ${{ env.BOOTNODES }}
-          COMPONENT_ID: ${{ env.COMPONENT_ID }}
-          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
-          COUNTRY: ${{ env.COUNTRY }}
-          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-          DNS_TYPE: ${{ env.DNS_TYPE }}
-          DNS_ZONE: ${{ env.DNS_ZONE }}
-          LOCATION: ${{ env.LOCATION }}
-          MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
-          NET_NAME: ${{ env.NET_NAME }}
-          NETWORK_ID: ${{ env.NETWORK_ID }}
-          NODE_COUNT: ${{ env.NODE_COUNT }}
-          ORGANIZATION: ${{ env.ORGANIZATION }}
-          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
-          SUBNET_NAME: ${{ env.SUBNET_NAME }}
-          VALIDATORS: ${{ env.VALIDATORS }}
-          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-          CLIENT_ID: ${{ vars.CLIENT_ID }}
-          TENANT_ID: ${{ vars.TENANT_ID }}
-          SECRET: ${{ secrets.SECRET }}
-          RG_NAME: ${{ vars.RG_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          AKS_NAME: ${{ secrets.AKS_NAME }}
-          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
-          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
-          RG_REGION: ${{ vars.RG_REGION }}
-          VMSS_NAME: ${{ vars.VMSS_NAME }}
-          ENV: ${{ env.ENV }} 
-        run: |
-          cd ${{ vars.FOUNDATION_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.KEYVAULT_PLAYBOOK }} -vvvv     
-  generate-network:
-    name: "generate-network"
-    runs-on: [ self-hosted, azure ]
-    needs: [create-keyvault, create-storage, create-database]
-    environment: dev-azure
-    steps:
-      - name: Checkout Azure DevOps repo
-        env:
-          AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
-        run: |
-          rm -rf ${{ vars.BESU_REPO_PATH }}
-          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.BESU_REPO_URL }}
-          cd ${{ vars.BESU_REPO_PATH }}
-          git checkout ${{ vars.BRANCH }}
-          echo "Cloned Azure DevOps repository"   
-          cat infra-requirements.yaml
       - uses: cschleiden/replace-tokens@v1
         with:
           tokenPrefix: '${'
@@ -337,26 +97,17 @@ jobs:
         env:
           AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}        
           BRANCH: ${{ vars.BRANCH }}   
-      - name: Running playbook to generate network
+      - name: Running playbook to drop explorer
         env:
           TIER: ${{ vars.TIER }}  
-          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
-          BOOTNODES: ${{ env.BOOTNODES }}
           COMPONENT_ID: ${{ env.COMPONENT_ID }}
           COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
           COUNTRY: ${{ env.COUNTRY }}
           CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-          DNS_TYPE: ${{ env.DNS_TYPE }}
           DNS_ZONE: ${{ env.DNS_ZONE }}
           LOCATION: ${{ env.LOCATION }}
-          MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
-          NET_NAME: ${{ env.NET_NAME }}
           NETWORK_ID: ${{ env.NETWORK_ID }}
-          NODE_COUNT: ${{ env.NODE_COUNT }}
           ORGANIZATION: ${{ env.ORGANIZATION }}
-          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
-          SUBNET_NAME: ${{ env.SUBNET_NAME }}
-          VALIDATORS: ${{ env.VALIDATORS }}
           SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
           CLIENT_ID: ${{ vars.CLIENT_ID }}
           TENANT_ID: ${{ vars.TENANT_ID }}
@@ -375,9 +126,190 @@ jobs:
           ENV: ${{ env.ENV }} 
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
-          cat infra-requirements.yaml
           ansible-galaxy collection install -r infra-requirements.yaml
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NETWORK_PLAYBOOK }} --tags="login,release,generate_keys" -vvvv
+          ansible-playbook -i inventories/hosts.yaml quorum-release.yaml --tags="login,tear_down" -vvvv
+  drop-storage:
+    name: "drop-storage"
+    runs-on: [ self-hosted, azure ]
+    needs: [checkout-anisble-pipelines, checkout-anisble-pipelines-besu]
+    environment: dev-azure
+    steps:
+      - name: Running playbook to drop storage
+        env:
+          TIER: ${{ vars.TIER }}  
+          COMPONENT_ID: ${{ env.COMPONENT_ID }}
+          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
+          COUNTRY: ${{ env.COUNTRY }}
+          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
+          DNS_ZONE: ${{ env.DNS_ZONE }}
+          LOCATION: ${{ env.LOCATION }}
+          NETWORK_ID: ${{ env.NETWORK_ID }}
+          ORGANIZATION: ${{ env.ORGANIZATION }}
+          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
+          CLIENT_ID: ${{ vars.CLIENT_ID }}
+          TENANT_ID: ${{ vars.TENANT_ID }}
+          SECRET: ${{ secrets.SECRET }}
+          RG_NAME: ${{ vars.RG_NAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          AKS_NAME: ${{ secrets.AKS_NAME }}
+          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
+          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
+          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
+          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
+          DB_PORT: ${{ vars.DB_PORT }}
+          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
+          RG_REGION: ${{ vars.RG_REGION }}
+          VMSS_NAME: ${{ vars.VMSS_NAME }}
+          ENV: ${{ env.ENV }} 
+        run: |
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.STORAGE_PLAYBOOK }}  --tags="never,tear_down" -vvvv
+  drop-database:
+    name: "drop-database"
+    runs-on: [ self-hosted, azure ]
+    needs: [checkout-anisble-pipelines, checkout-anisble-pipelines-besu]
+    environment: dev-azure
+    steps:
+      - name: Running playbook to drop database
+        env:
+          TIER: ${{ vars.TIER }}  
+          COMPONENT_ID: ${{ env.COMPONENT_ID }}
+          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
+          COUNTRY: ${{ env.COUNTRY }}
+          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
+          DNS_ZONE: ${{ env.DNS_ZONE }}
+          LOCATION: ${{ env.LOCATION }}
+          NETWORK_ID: ${{ env.NETWORK_ID }}
+          ORGANIZATION: ${{ env.ORGANIZATION }}
+          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
+          CLIENT_ID: ${{ vars.CLIENT_ID }}
+          TENANT_ID: ${{ vars.TENANT_ID }}
+          SECRET: ${{ secrets.SECRET }}
+          RG_NAME: ${{ vars.RG_NAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          AKS_NAME: ${{ secrets.AKS_NAME }}
+          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
+          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
+          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
+          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
+          DB_PORT: ${{ vars.DB_PORT }}
+          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
+          RG_REGION: ${{ vars.RG_REGION }}
+          VMSS_NAME: ${{ vars.VMSS_NAME }}
+          ENV: ${{ env.ENV }} 
+        run: |
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.DATABASE_PLAYBOOK }} --tags="never,tear_down" -vvvv
+  drop-keyvault:
+    name: "drop-keyvault"
+    runs-on: [ self-hosted, azure ]
+    needs: [checkout-anisble-pipelines, checkout-anisble-pipelines-besu]
+    environment: dev-azure
+    steps:
+      - name: Running playbook to drop keyvault
+        env:
+          TIER: ${{ vars.TIER }}  
+          COMPONENT_ID: ${{ env.COMPONENT_ID }}
+          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
+          COUNTRY: ${{ env.COUNTRY }}
+          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
+          DNS_ZONE: ${{ env.DNS_ZONE }}
+          LOCATION: ${{ env.LOCATION }}
+          NETWORK_ID: ${{ env.NETWORK_ID }}
+          ORGANIZATION: ${{ env.ORGANIZATION }}
+          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
+          CLIENT_ID: ${{ vars.CLIENT_ID }}
+          TENANT_ID: ${{ vars.TENANT_ID }}
+          SECRET: ${{ secrets.SECRET }}
+          RG_NAME: ${{ vars.RG_NAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          AKS_NAME: ${{ secrets.AKS_NAME }}
+          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
+          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
+          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
+          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
+          DB_PORT: ${{ vars.DB_PORT }}
+          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
+          RG_REGION: ${{ vars.RG_REGION }}
+          VMSS_NAME: ${{ vars.VMSS_NAME }}
+          ENV: ${{ env.ENV }} 
+        run: |
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.KEYVAULT_PLAYBOOK }} --tags="never,tear_down" -vvvv
+  drop-service-principal:
+    name: "drop-service-principal"
+    runs-on: [ self-hosted, azure ]
+    needs: [drop-explorer, drop-storage, drop-database, drop-keyvault]
+    environment: dev-azure
+    steps:
+      - name: Running playbook to drop service-principal
+        env:
+          TIER: ${{ vars.TIER }}  
+          COMPONENT_ID: ${{ env.COMPONENT_ID }}
+          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
+          COUNTRY: ${{ env.COUNTRY }}
+          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
+          DNS_ZONE: ${{ env.DNS_ZONE }}
+          LOCATION: ${{ env.LOCATION }}
+          NETWORK_ID: ${{ env.NETWORK_ID }}
+          ORGANIZATION: ${{ env.ORGANIZATION }}
+          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
+          CLIENT_ID: ${{ vars.CLIENT_ID }}
+          TENANT_ID: ${{ vars.TENANT_ID }}
+          SECRET: ${{ secrets.SECRET }}
+          RG_NAME: ${{ vars.RG_NAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          AKS_NAME: ${{ secrets.AKS_NAME }}
+          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
+          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
+          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
+          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
+          DB_PORT: ${{ vars.DB_PORT }}
+          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
+          RG_REGION: ${{ vars.RG_REGION }}
+          VMSS_NAME: ${{ vars.VMSS_NAME }}
+          ENV: ${{ env.ENV }} 
+        run: |
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.SP_PLAYBOOK }} --tags="never,tear_down" -vvvv
+
+  drop-namespace:
+    name: "drop-namespace"
+    runs-on: [ self-hosted, azure ]
+    needs: [drop-service-principal]
+    environment: dev-azure
+    steps:
+      - name: Running playbook to drop namespace
+        env:
+          TIER: ${{ vars.TIER }}  
+          COMPONENT_ID: ${{ env.COMPONENT_ID }}
+          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
+          COUNTRY: ${{ env.COUNTRY }}
+          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
+          DNS_ZONE: ${{ env.DNS_ZONE }}
+          LOCATION: ${{ env.LOCATION }}
+          NETWORK_ID: ${{ env.NETWORK_ID }}
+          ORGANIZATION: ${{ env.ORGANIZATION }}
+          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
+          CLIENT_ID: ${{ vars.CLIENT_ID }}
+          TENANT_ID: ${{ vars.TENANT_ID }}
+          SECRET: ${{ secrets.SECRET }}
+          RG_NAME: ${{ vars.RG_NAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          AKS_NAME: ${{ secrets.AKS_NAME }}
+          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
+          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
+          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
+          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
+          DB_PORT: ${{ vars.DB_PORT }}
+          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
+          RG_REGION: ${{ vars.RG_REGION }}
+          VMSS_NAME: ${{ vars.VMSS_NAME }}
+          ENV: ${{ env.ENV }} 
+        run: |
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} --tags="never,tear_down" -vvvv
+
 
 
 
