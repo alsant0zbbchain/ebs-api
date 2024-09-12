@@ -3,7 +3,7 @@ run-name: ${{ inputs.identifier }}
 
 on:
   workflow_dispatch:
-    inputs:   
+    inputs:
       identifier:
         description: 'Variable that represents the release identifier'
         required: true
