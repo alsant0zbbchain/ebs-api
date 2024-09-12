@@ -11,25 +11,22 @@ on:
       parameters:
         description: 'Variables in json wrapped'
         required: true
-env:
-  BESU_CONSENSUS_ALG: ${{ fromJson(github.event.inputs.parameters).BESU_CONSENSUS_ALG || 'QBFT' }}
-  COMPONENT_ID: ${{ fromJson(github.event.inputs.parameters).COMPONENT_ID || '' }}
-  COMPONENT_NAME: ${{ fromJson(github.event.inputs.parameters).COMPONENT_NAME || '' }}
-  COUNTRY: ${{ fromJson(github.event.inputs.parameters).COUNTRY || '' }}
-  CUSTOMER_ID: ${{ fromJson(github.event.inputs.parameters).CUSTOMER_ID || '' }}
-  DNS_ZONE: ${{ fromJson(github.event.inputs.parameters).DNS_ZONE || 'blockchainlab.network' }} 
-  DNS_TYPE: ${{ fromJson(github.event.inputs.parameters).DNS_TYPE || 'public' }}
-  LOCATION: ${{ fromJson(github.event.inputs.parameters).LOCATION || '' }}
-  NETWORK_ID: ${{ fromJson(github.event.inputs.parameters).NETWORK_ID || '' }}
-  ORGANIZATION: ${{ fromJson(github.event.inputs.parameters).ORGANIZATION || '' }}
-  ENV: ${{ fromJson(github.event.inputs.parameters).ENV || '' }}
 
 jobs:
   check-required-env-variables:
     name: "required-env-variables"
     runs-on: [ self-hosted, azure ]
-    environment: dev
+    environment: dev-azure
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - name: Checking COMPONENT_ID
         if: ${{ env.COMPONENT_ID == '' }} 
         uses: actions/github-script@v3
@@ -60,9 +57,16 @@ jobs:
     needs: [check-required-env-variables]
     environment: dev-azure
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - name: Checkout Azure DevOps repo
-        env:
-          AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
         run: |
           rm -rf ${{ vars.BESU_REPO_PATH }}
           git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.BESU_REPO_URL }}
@@ -75,9 +79,16 @@ jobs:
     needs: [check-required-env-variables]
     environment: dev-azure
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - name: Checkout Azure DevOps repo
-        env:
-          AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
         run: |
           rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
           git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
@@ -90,42 +101,21 @@ jobs:
     needs: [checkout-anisble-pipelines, checkout-anisble-pipelines-besu]
     environment: dev-azure
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - uses: cschleiden/replace-tokens@v1
         with:
           tokenPrefix: '${'
           tokenSuffix: '}'
           files: '["**/infra-requirements.yaml"]'
-        env:
-          AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}        
-          BRANCH: ${{ vars.BRANCH }}   
       - name: Running playbook to drop explorer
-        env:
-          TIER: ${{ vars.TIER }}  
-          COMPONENT_ID: ${{ env.COMPONENT_ID }}
-          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
-          COUNTRY: ${{ env.COUNTRY }}
-          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-          DNS_ZONE: ${{ env.DNS_ZONE }}
-          DNS_TYPE: ${{ env.DNS_TYPE }}
-          LOCATION: ${{ env.LOCATION }}
-          NETWORK_ID: ${{ env.NETWORK_ID }}
-          ORGANIZATION: ${{ env.ORGANIZATION }}
-          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-          CLIENT_ID: ${{ vars.CLIENT_ID }}
-          TENANT_ID: ${{ vars.TENANT_ID }}
-          SECRET: ${{ secrets.SECRET }}
-          RG_NAME: ${{ vars.RG_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          AKS_NAME: ${{ secrets.AKS_NAME }}
-          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
-          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
-          RG_REGION: ${{ vars.RG_REGION }}
-          VMSS_NAME: ${{ vars.VMSS_NAME }}
-          ENV: ${{ env.ENV }} 
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
           ansible-galaxy collection install -r infra-requirements.yaml
@@ -136,34 +126,16 @@ jobs:
     needs: [checkout-anisble-pipelines, checkout-anisble-pipelines-besu]
     environment: dev-azure
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - name: Running playbook to drop storage
-        env:
-          TIER: ${{ vars.TIER }}  
-          COMPONENT_ID: ${{ env.COMPONENT_ID }}
-          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
-          COUNTRY: ${{ env.COUNTRY }}
-          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-          DNS_ZONE: ${{ env.DNS_ZONE }}
-          DNS_TYPE: ${{ env.DNS_TYPE }}
-          LOCATION: ${{ env.LOCATION }}
-          NETWORK_ID: ${{ env.NETWORK_ID }}
-          ORGANIZATION: ${{ env.ORGANIZATION }}
-          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-          CLIENT_ID: ${{ vars.CLIENT_ID }}
-          TENANT_ID: ${{ vars.TENANT_ID }}
-          SECRET: ${{ secrets.SECRET }}
-          RG_NAME: ${{ vars.RG_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          AKS_NAME: ${{ secrets.AKS_NAME }}
-          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
-          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
-          RG_REGION: ${{ vars.RG_REGION }}
-          VMSS_NAME: ${{ vars.VMSS_NAME }}
-          ENV: ${{ env.ENV }} 
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.STORAGE_PLAYBOOK }}  --tags="never,tear_down" -vvvv
@@ -173,34 +145,16 @@ jobs:
     needs: [checkout-anisble-pipelines, checkout-anisble-pipelines-besu]
     environment: dev-azure
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - name: Running playbook to drop database
-        env:
-          TIER: ${{ vars.TIER }}  
-          COMPONENT_ID: ${{ env.COMPONENT_ID }}
-          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
-          COUNTRY: ${{ env.COUNTRY }}
-          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-          DNS_ZONE: ${{ env.DNS_ZONE }}
-          DNS_TYPE: ${{ env.DNS_TYPE }}
-          LOCATION: ${{ env.LOCATION }}
-          NETWORK_ID: ${{ env.NETWORK_ID }}
-          ORGANIZATION: ${{ env.ORGANIZATION }}
-          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-          CLIENT_ID: ${{ vars.CLIENT_ID }}
-          TENANT_ID: ${{ vars.TENANT_ID }}
-          SECRET: ${{ secrets.SECRET }}
-          RG_NAME: ${{ vars.RG_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          AKS_NAME: ${{ secrets.AKS_NAME }}
-          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
-          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
-          RG_REGION: ${{ vars.RG_REGION }}
-          VMSS_NAME: ${{ vars.VMSS_NAME }}
-          ENV: ${{ env.ENV }} 
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.DATABASE_PLAYBOOK }} --tags="never,tear_down" -vvvv
@@ -210,34 +164,16 @@ jobs:
     needs: [checkout-anisble-pipelines, checkout-anisble-pipelines-besu]
     environment: dev-azure
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - name: Running playbook to drop keyvault
-        env:
-          TIER: ${{ vars.TIER }}  
-          COMPONENT_ID: ${{ env.COMPONENT_ID }}
-          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
-          COUNTRY: ${{ env.COUNTRY }}
-          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-          DNS_ZONE: ${{ env.DNS_ZONE }}
-          DNS_TYPE: ${{ env.DNS_TYPE }}
-          LOCATION: ${{ env.LOCATION }}
-          NETWORK_ID: ${{ env.NETWORK_ID }}
-          ORGANIZATION: ${{ env.ORGANIZATION }}
-          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-          CLIENT_ID: ${{ vars.CLIENT_ID }}
-          TENANT_ID: ${{ vars.TENANT_ID }}
-          SECRET: ${{ secrets.SECRET }}
-          RG_NAME: ${{ vars.RG_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          AKS_NAME: ${{ secrets.AKS_NAME }}
-          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
-          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
-          RG_REGION: ${{ vars.RG_REGION }}
-          VMSS_NAME: ${{ vars.VMSS_NAME }}
-          ENV: ${{ env.ENV }} 
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.KEYVAULT_PLAYBOOK }} --tags="never,tear_down" -vvvv
@@ -247,34 +183,16 @@ jobs:
     needs: [drop-explorer, drop-storage, drop-database, drop-keyvault]
     environment: dev-azure
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - name: Running playbook to drop service-principal
-        env:
-          TIER: ${{ vars.TIER }}  
-          COMPONENT_ID: ${{ env.COMPONENT_ID }}
-          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
-          COUNTRY: ${{ env.COUNTRY }}
-          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-          DNS_ZONE: ${{ env.DNS_ZONE }}
-          DNS_TYPE: ${{ env.DNS_TYPE }}
-          LOCATION: ${{ env.LOCATION }}
-          NETWORK_ID: ${{ env.NETWORK_ID }}
-          ORGANIZATION: ${{ env.ORGANIZATION }}
-          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-          CLIENT_ID: ${{ vars.CLIENT_ID }}
-          TENANT_ID: ${{ vars.TENANT_ID }}
-          SECRET: ${{ secrets.SECRET }}
-          RG_NAME: ${{ vars.RG_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          AKS_NAME: ${{ secrets.AKS_NAME }}
-          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
-          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
-          RG_REGION: ${{ vars.RG_REGION }}
-          VMSS_NAME: ${{ vars.VMSS_NAME }}
-          ENV: ${{ env.ENV }} 
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.SP_PLAYBOOK }} --tags="never,tear_down" -vvvv
@@ -285,34 +203,16 @@ jobs:
     needs: [drop-service-principal]
     environment: dev-azure
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - name: Running playbook to drop namespace
-        env:
-          TIER: ${{ vars.TIER }}  
-          COMPONENT_ID: ${{ env.COMPONENT_ID }}
-          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
-          COUNTRY: ${{ env.COUNTRY }}
-          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-          DNS_ZONE: ${{ env.DNS_ZONE }}
-          DNS_TYPE: ${{ env.DNS_TYPE }}
-          LOCATION: ${{ env.LOCATION }}
-          NETWORK_ID: ${{ env.NETWORK_ID }}
-          ORGANIZATION: ${{ env.ORGANIZATION }}
-          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-          CLIENT_ID: ${{ vars.CLIENT_ID }}
-          TENANT_ID: ${{ vars.TENANT_ID }}
-          SECRET: ${{ secrets.SECRET }}
-          RG_NAME: ${{ vars.RG_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          AKS_NAME: ${{ secrets.AKS_NAME }}
-          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
-          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
-          RG_REGION: ${{ vars.RG_REGION }}
-          VMSS_NAME: ${{ vars.VMSS_NAME }}
-          ENV: ${{ env.ENV }} 
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} --tags="never,tear_down" -vvvv
