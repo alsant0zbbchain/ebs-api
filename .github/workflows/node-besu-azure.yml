@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
-          secrets: ${{ toJSON(env) }}
+          secrets: ${{ toJSON(vars) }}
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ toJSON(secrets) }}       
