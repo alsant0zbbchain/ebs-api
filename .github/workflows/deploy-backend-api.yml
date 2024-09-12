@@ -27,10 +27,10 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}
-      - name: Print all envs - Test
+      - name: Print envs - test
         run: |
           echo "Printing all environment variables:"
-          env    
+          env
       - name: Checking COMPONENT_ID
         if: ${{ env.COMPONENT_ID == '' }} 
         uses: actions/github-script@v3
@@ -78,6 +78,18 @@ jobs:
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           git checkout ${{ vars.BRANCH }}
           echo "Cloned Azure DevOps repository"
+      - name: Checkout Azure Besu DevOps repo
+        run: |
+          rm -rf ${{ vars.BESU_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.BESU_REPO_URL }}
+          cd ${{ vars.BESU_REPO_PATH }}
+          git checkout ${{ vars.BRANCH }}
+          echo "Cloned Azure DevOps repository"   
+      - uses: cschleiden/replace-tokens@v1
+        with:
+          tokenPrefix: '${'
+          tokenSuffix: '}'
+          files: '["**/infra-requirements.yaml"]'
 
   deploy-backend-api:
     name: "deploy-backend-api"
@@ -96,9 +108,9 @@ jobs:
           secrets: ${{ github.event.inputs.parameters }}    
       - name: Installing collection
         run: |
-          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          cd ${{ vars.BESU_REPO_PATH }}
           ansible-galaxy collection install -r infra-requirements.yaml -vvvv
       - name: Deploy API
         run: |
-          cd ${{ vars.FOUNDATION_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} --tags="login,api_deploy" -vvvv
+          cd ${{ vars.BESU_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="login,api_deploy" -vvvv
