@@ -50,7 +50,7 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('NODES_DATA is required') 
+              core.setFailed('NODES_DATA is required')               
   checkout-anisble-pipelines:
     name: "checkout-ansible-pipelines"
     runs-on: [ self-hosted, azure ]
