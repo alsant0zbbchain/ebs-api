@@ -124,11 +124,11 @@ jobs:
       - name: Running playbook to drop node
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="tear_down" -vvvv
-  deploy-blockscout:
-    name: "deploy-blockscout"
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="tear_down,login" -vvvv
+  drop-quorum-explorer:
+    name: "drop-quorum-explorer"
     runs-on: [ self-hosted, azure ]
-    needs: [deploy-node]
+    needs: [drop-besu-node]
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -140,7 +140,45 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}    
-      - name: Running playbook to deploy node
+      - name: Running playbook to drop QUORUM-EXPLORER
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.QUORUM_RELEASE_GENESIS_PLAYBOOK }} --tags="release" -vvvv
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.QUORUM_RELEASE_GENESIS_PLAYBOOK }} --tags="tear_down" -vvvv
+  drop-blockscout:
+    name: "drop-blockscout"
+    runs-on: [ self-hosted, azure ]
+    needs: [drop-quorum-explorer]
+    environment: dev-azure
+    steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
+      - name: Running playbook to drop blockscout
+        run: |
+          cd ${{ vars.BESU_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.BLOCKSCOUT_PLAYBOOK }} --tags="tear_down" -vvvv          
+  clean-resources:
+    name: "clean-resources"
+    runs-on: [ self-hosted, azure ]
+    needs: [drop-blockscout]
+    environment: dev-azure
+    steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
+      - name: Running playbook to clean resources
+        run: |
+          cd ${{ vars.BESU_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.CLEAN_PLAYBOOK }} --tags="tear_down" -vvvv                    
