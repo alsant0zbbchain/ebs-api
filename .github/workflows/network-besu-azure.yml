@@ -11,25 +11,6 @@ on:
       parameters:
         description: 'Variables in json wrapped'
         required: true
-env:
-  BESU_CONSENSUS_ALG: ${{ fromJson(github.event.inputs.parameters).BESU_CONSENSUS_ALG || 'QBFT' }}
-  BOOTNODES: ${{ fromJson(github.event.inputs.parameters).BOOTNODES || '' }}
-  COMPONENT_ID: ${{ fromJson(github.event.inputs.parameters).COMPONENT_ID || '' }}
-  COMPONENT_NAME: ${{ fromJson(github.event.inputs.parameters).COMPONENT_NAME || '' }}
-  COUNTRY: ${{ fromJson(github.event.inputs.parameters).COUNTRY || '' }}
-  CUSTOMER_ID: ${{ fromJson(github.event.inputs.parameters).CUSTOMER_ID || '' }}
-  DNS_TYPE: ${{ fromJson(github.event.inputs.parameters).DNS_TYPE || 'public' }}
-  DNS_ZONE: ${{ fromJson(github.event.inputs.parameters).DNS_ZONE || 'blockchainlab.network' }} 
-  LOCATION: ${{ fromJson(github.event.inputs.parameters).LOCATION || '' }}
-  MIN_GAS_PRICE: ${{ fromJson(github.event.inputs.parameters).MIN_GAS_PRICE || '0' }} 
-  NET_NAME: ${{ fromJson(github.event.inputs.parameters).NET_NAME || 'ks-net' }} 
-  NETWORK_ID: ${{ fromJson(github.event.inputs.parameters).NETWORK_ID || '' }}
-  NODE_COUNT: ${{ fromJson(github.event.inputs.parameters).NODE_COUNT || '4' }} 
-  ORGANIZATION: ${{ fromJson(github.event.inputs.parameters).ORGANIZATION || '' }}
-  QUORUM_EXPLORER_IMAGE_TAG: ${{ fromJson(github.event.inputs.parameters).QUORUM_EXPLORER_IMAGE_TAG || '8091' }} 
-  SUBNET_NAME: ${{ fromJson(github.event.inputs.parameters).SUBNET_NAME || 'ks-subnet' }} 
-  VALIDATORS: ${{ fromJson(github.event.inputs.parameters).VALIDATORS || '' }}
-  ENV: ${{ fromJson(github.event.inputs.parameters).ENV || '' }}
 
 jobs:
   check-required-env-variables:
@@ -37,6 +18,15 @@ jobs:
     runs-on: [ self-hosted, azure ]
     environment: dev-azure
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - name: Checking BOOTNODES
         if: ${{ env.BOOTNODES == '' }} 
         uses: actions/github-script@v3
@@ -79,9 +69,16 @@ jobs:
     needs: [check-required-env-variables]
     environment: dev-azure
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - name: Checkout Azure DevOps repo
-        env:
-          AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
         run: |
           rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
           git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
@@ -94,42 +91,16 @@ jobs:
     needs: [checkout-anisble-pipelines]
     environment: dev-azure
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - name: Running playbook to create namespace
-        env:
-          TIER: ${{ vars.TIER }}  
-          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
-          BOOTNODES: ${{ env.BOOTNODES }}
-          COMPONENT_ID: ${{ env.COMPONENT_ID }}
-          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
-          COUNTRY: ${{ env.COUNTRY }}
-          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-          DNS_TYPE: ${{ env.DNS_TYPE }}
-          DNS_ZONE: ${{ env.DNS_ZONE }}
-          LOCATION: ${{ env.LOCATION }}
-          MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
-          NET_NAME: ${{ env.NET_NAME }}
-          NETWORK_ID: ${{ env.NETWORK_ID }}
-          NODE_COUNT: ${{ env.NODE_COUNT }}
-          ORGANIZATION: ${{ env.ORGANIZATION }}
-          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
-          SUBNET_NAME: ${{ env.SUBNET_NAME }}
-          VALIDATORS: ${{ env.VALIDATORS }}
-          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-          CLIENT_ID: ${{ vars.CLIENT_ID }}
-          TENANT_ID: ${{ vars.TENANT_ID }}
-          SECRET: ${{ secrets.SECRET }}
-          RG_NAME: ${{ vars.RG_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          AKS_NAME: ${{ secrets.AKS_NAME }}
-          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
-          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
-          RG_REGION: ${{ vars.RG_REGION }}
-          VMSS_NAME: ${{ vars.VMSS_NAME }}
-          ENV: ${{ env.ENV }} 
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} -vvvv
@@ -139,42 +110,16 @@ jobs:
     needs: [create-namespace]
     environment: dev-azure
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - name: Running playbook to create service principal
-        env:
-          TIER: ${{ vars.TIER }}  
-          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
-          BOOTNODES: ${{ env.BOOTNODES }}
-          COMPONENT_ID: ${{ env.COMPONENT_ID }}
-          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
-          COUNTRY: ${{ env.COUNTRY }}
-          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-          DNS_TYPE: ${{ env.DNS_TYPE }}
-          DNS_ZONE: ${{ env.DNS_ZONE }}
-          LOCATION: ${{ env.LOCATION }}
-          MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
-          NET_NAME: ${{ env.NET_NAME }}
-          NETWORK_ID: ${{ env.NETWORK_ID }}
-          NODE_COUNT: ${{ env.NODE_COUNT }}
-          ORGANIZATION: ${{ env.ORGANIZATION }}
-          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
-          SUBNET_NAME: ${{ env.SUBNET_NAME }}
-          VALIDATORS: ${{ env.VALIDATORS }}
-          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-          CLIENT_ID: ${{ vars.CLIENT_ID }}
-          TENANT_ID: ${{ vars.TENANT_ID }}
-          SECRET: ${{ secrets.SECRET }}
-          RG_NAME: ${{ vars.RG_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          AKS_NAME: ${{ secrets.AKS_NAME }}
-          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
-          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
-          RG_REGION: ${{ vars.RG_REGION }}
-          VMSS_NAME: ${{ vars.VMSS_NAME }}
-          ENV: ${{ env.ENV }} 
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.SP_PLAYBOOK }} -vvvv
@@ -184,42 +129,16 @@ jobs:
     needs: [create-service-principal]
     environment: dev-azure
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - name: Running playbook to create database
-        env:
-          TIER: ${{ vars.TIER }}  
-          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
-          BOOTNODES: ${{ env.BOOTNODES }}
-          COMPONENT_ID: ${{ env.COMPONENT_ID }}
-          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
-          COUNTRY: ${{ env.COUNTRY }}
-          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-          DNS_TYPE: ${{ env.DNS_TYPE }}
-          DNS_ZONE: ${{ env.DNS_ZONE }}
-          LOCATION: ${{ env.LOCATION }}
-          MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
-          NET_NAME: ${{ env.NET_NAME }}
-          NETWORK_ID: ${{ env.NETWORK_ID }}
-          NODE_COUNT: ${{ env.NODE_COUNT }}
-          ORGANIZATION: ${{ env.ORGANIZATION }}
-          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
-          SUBNET_NAME: ${{ env.SUBNET_NAME }}
-          VALIDATORS: ${{ env.VALIDATORS }}
-          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-          CLIENT_ID: ${{ vars.CLIENT_ID }}
-          TENANT_ID: ${{ vars.TENANT_ID }}
-          SECRET: ${{ secrets.SECRET }}
-          RG_NAME: ${{ vars.RG_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          AKS_NAME: ${{ secrets.AKS_NAME }}
-          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
-          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
-          RG_REGION: ${{ vars.RG_REGION }}
-          VMSS_NAME: ${{ vars.VMSS_NAME }}
-          ENV: ${{ env.ENV }} 
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.DATABASE_PLAYBOOK }} -vvvv
@@ -229,42 +148,16 @@ jobs:
     needs: [create-service-principal]
     environment: dev-azure
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - name: Running playbook to create storage
-        env:
-          TIER: ${{ vars.TIER }}  
-          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
-          BOOTNODES: ${{ env.BOOTNODES }}
-          COMPONENT_ID: ${{ env.COMPONENT_ID }}
-          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
-          COUNTRY: ${{ env.COUNTRY }}
-          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-          DNS_TYPE: ${{ env.DNS_TYPE }}
-          DNS_ZONE: ${{ env.DNS_ZONE }}
-          LOCATION: ${{ env.LOCATION }}
-          MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
-          NET_NAME: ${{ env.NET_NAME }}
-          NETWORK_ID: ${{ env.NETWORK_ID }}
-          NODE_COUNT: ${{ env.NODE_COUNT }}
-          ORGANIZATION: ${{ env.ORGANIZATION }}
-          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
-          SUBNET_NAME: ${{ env.SUBNET_NAME }}
-          VALIDATORS: ${{ env.VALIDATORS }}
-          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-          CLIENT_ID: ${{ vars.CLIENT_ID }}
-          TENANT_ID: ${{ vars.TENANT_ID }}
-          SECRET: ${{ secrets.SECRET }}
-          RG_NAME: ${{ vars.RG_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          AKS_NAME: ${{ secrets.AKS_NAME }}
-          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
-          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
-          RG_REGION: ${{ vars.RG_REGION }}
-          VMSS_NAME: ${{ vars.VMSS_NAME }}
-          ENV: ${{ env.ENV }}         
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.STORAGE_PLAYBOOK }} -vvvv
@@ -274,42 +167,16 @@ jobs:
     needs: [create-service-principal]
     environment: dev-azure
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - name: Running playbook to create keyvault
-        env:
-          TIER: ${{ vars.TIER }}  
-          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
-          BOOTNODES: ${{ env.BOOTNODES }}
-          COMPONENT_ID: ${{ env.COMPONENT_ID }}
-          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
-          COUNTRY: ${{ env.COUNTRY }}
-          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-          DNS_TYPE: ${{ env.DNS_TYPE }}
-          DNS_ZONE: ${{ env.DNS_ZONE }}
-          LOCATION: ${{ env.LOCATION }}
-          MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
-          NET_NAME: ${{ env.NET_NAME }}
-          NETWORK_ID: ${{ env.NETWORK_ID }}
-          NODE_COUNT: ${{ env.NODE_COUNT }}
-          ORGANIZATION: ${{ env.ORGANIZATION }}
-          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
-          SUBNET_NAME: ${{ env.SUBNET_NAME }}
-          VALIDATORS: ${{ env.VALIDATORS }}
-          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-          CLIENT_ID: ${{ vars.CLIENT_ID }}
-          TENANT_ID: ${{ vars.TENANT_ID }}
-          SECRET: ${{ secrets.SECRET }}
-          RG_NAME: ${{ vars.RG_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          AKS_NAME: ${{ secrets.AKS_NAME }}
-          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
-          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
-          RG_REGION: ${{ vars.RG_REGION }}
-          VMSS_NAME: ${{ vars.VMSS_NAME }}
-          ENV: ${{ env.ENV }} 
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.KEYVAULT_PLAYBOOK }} -vvvv     
@@ -319,9 +186,16 @@ jobs:
     needs: [create-keyvault, create-storage, create-database]
     environment: dev-azure
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - name: Checkout Azure DevOps repo
-        env:
-          AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
         run: |
           rm -rf ${{ vars.BESU_REPO_PATH }}
           git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.BESU_REPO_URL }}
@@ -334,45 +208,7 @@ jobs:
           tokenPrefix: '${'
           tokenSuffix: '}'
           files: '["**/infra-requirements.yaml"]'
-        env:
-          AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}        
-          BRANCH: ${{ vars.BRANCH }}   
       - name: Running playbook to generate network
-        env:
-          TIER: ${{ vars.TIER }}  
-          BESU_CONSENSUS_ALG: ${{ env.BESU_CONSENSUS_ALG }}
-          BOOTNODES: ${{ env.BOOTNODES }}
-          COMPONENT_ID: ${{ env.COMPONENT_ID }}
-          COMPONENT_NAME: ${{ env.COMPONENT_NAME }}
-          COUNTRY: ${{ env.COUNTRY }}
-          CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
-          DNS_TYPE: ${{ env.DNS_TYPE }}
-          DNS_ZONE: ${{ env.DNS_ZONE }}
-          LOCATION: ${{ env.LOCATION }}
-          MIN_GAS_PRICE: ${{ env.MIN_GAS_PRICE }}
-          NET_NAME: ${{ env.NET_NAME }}
-          NETWORK_ID: ${{ env.NETWORK_ID }}
-          NODE_COUNT: ${{ env.NODE_COUNT }}
-          ORGANIZATION: ${{ env.ORGANIZATION }}
-          QUORUM_EXPLORER_IMAGE_TAG: ${{ env.QUORUM_EXPLORER_IMAGE_TAG }}
-          SUBNET_NAME: ${{ env.SUBNET_NAME }}
-          VALIDATORS: ${{ env.VALIDATORS }}
-          SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-          CLIENT_ID: ${{ vars.CLIENT_ID }}
-          TENANT_ID: ${{ vars.TENANT_ID }}
-          SECRET: ${{ secrets.SECRET }}
-          RG_NAME: ${{ vars.RG_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          AKS_NAME: ${{ secrets.AKS_NAME }}
-          CONTAINER_REGISTRY_HOST: ${{ vars.CONTAINER_REGISTRY_HOST }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          DATABASE_SERVER_NAME: ${{ vars.DATABASE_SERVER_NAME }}
-          DB_ADMIN_USERNAME: ${{ vars.DB_ADMIN_USERNAME }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          REQUIRED_SUBNETS: ${{ vars.REQUIRED_SUBNETS }}
-          RG_REGION: ${{ vars.RG_REGION }}
-          VMSS_NAME: ${{ vars.VMSS_NAME }}
-          ENV: ${{ env.ENV }} 
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
           cat infra-requirements.yaml
