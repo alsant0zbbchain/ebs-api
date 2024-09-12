@@ -11,31 +11,12 @@ on:
       parameters:
         description: 'Variables in json wrapped'
         required: true
-# env:
-#   BESU_CONSENSUS_ALG: ${{ fromJson(github.event.inputs.parameters).BESU_CONSENSUS_ALG || 'QBFT' }}
-#   BOOTNODES: ${{ fromJson(github.event.inputs.parameters).BOOTNODES || '' }}
-#   COMPONENT_ID: ${{ fromJson(github.event.inputs.parameters).COMPONENT_ID || '' }}
-#   COMPONENT_NAME: ${{ fromJson(github.event.inputs.parameters).COMPONENT_NAME || '' }}
-#   COUNTRY: ${{ fromJson(github.event.inputs.parameters).COUNTRY || '' }}
-#   CUSTOMER_ID: ${{ fromJson(github.event.inputs.parameters).CUSTOMER_ID || '' }}
-#   DNS_TYPE: ${{ fromJson(github.event.inputs.parameters).DNS_TYPE || 'public' }}
-#   DNS_ZONE: ${{ fromJson(github.event.inputs.parameters).DNS_ZONE || 'blockchainlab.network' }} 
-#   LOCATION: ${{ fromJson(github.event.inputs.parameters).LOCATION || '' }}
-#   MIN_GAS_PRICE: ${{ fromJson(github.event.inputs.parameters).MIN_GAS_PRICE || '0' }} 
-#   NET_NAME: ${{ fromJson(github.event.inputs.parameters).NET_NAME || 'ks-net' }} 
-#   NETWORK_ID: ${{ fromJson(github.event.inputs.parameters).NETWORK_ID || '' }}
-#   NODE_COUNT: ${{ fromJson(github.event.inputs.parameters).NODE_COUNT || '4' }} 
-#   ORGANIZATION: ${{ fromJson(github.event.inputs.parameters).ORGANIZATION || '' }}
-#   QUORUM_EXPLORER_IMAGE_TAG: ${{ fromJson(github.event.inputs.parameters).QUORUM_EXPLORER_IMAGE_TAG || '8091' }} 
-#   SUBNET_NAME: ${{ fromJson(github.event.inputs.parameters).SUBNET_NAME || 'ks-subnet' }} 
-#   VALIDATORS: ${{ fromJson(github.event.inputs.parameters).VALIDATORS || '' }}
-#   ENV: ${{ fromJson(github.event.inputs.parameters).ENV || '' }}
 
 jobs:
   check-required-env-variables:
     name: "required-env-variables"
     runs-on: [ self-hosted, azure ]
-    environment: dev-azure
+    environment: dev
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
@@ -51,7 +32,7 @@ jobs:
       - run: | 
           echo "Value of AKS_NAME: $AKS_NAME"              
       - run: | 
-          echo "Value of DB_PASSWORD: $DB_PASSWORD"                        
+          echo "Value of DB_PASSWORD: $DB_PASSWORD"         
       # - name: Checking BOOTNODES
       #   if: ${{ env.BOOTNODES == '' }} 
       #   uses: actions/github-script@v3
@@ -88,21 +69,24 @@ jobs:
       #   with:
       #     script: |
       #         core.setFailed('VALIDATORS is required')                  
-  # checkout-anisble-pipelines:
-  #   name: "checkout-ansible-pipelines"
-  #   runs-on: [ self-hosted, azure ]
-  #   needs: [check-required-env-variables]
-  #   environment: dev-azure
-  #   steps:
-  #     - name: Checkout Azure DevOps repo
-  #       env:
-  #         AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
-  #       run: |
-  #         rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
-  #         git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
-  #         cd ${{ vars.FOUNDATION_REPO_PATH }}
-  #         git checkout ${{ vars.BRANCH }}
-  #         echo "Cloned Azure DevOps repository"
+  checkout-anisble-pipelines:
+    name: "checkout-ansible-pipelines"
+    runs-on: [ self-hosted, azure ]
+    needs: [check-required-env-variables]
+    environment: dev-azure
+    steps:
+      - name: Checkout Azure DevOps repo
+        env:
+          AZURE_GIT_ACCESS_TOKEN: ${{ secrets.AZURE_GIT_ACCESS_TOKEN }}
+        run: |
+          rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          git checkout ${{ vars.BRANCH }}
+          echo "Cloned Azure DevOps repository"
+          echo "Value of CUSTOMER_ID: $CUSTOMER_ID"    
+          echo "Value of AKS_NAME: $AKS_NAME"      
+          echo "Value of DB_PASSWORD: $DB_PASSWORD"               
   # create-namespace:
   #   name: "create-namespace"
   #   runs-on: [ self-hosted, azure ]
