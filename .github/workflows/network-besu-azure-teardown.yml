@@ -18,6 +18,7 @@ env:
   COUNTRY: ${{ fromJson(github.event.inputs.parameters).COUNTRY || '' }}
   CUSTOMER_ID: ${{ fromJson(github.event.inputs.parameters).CUSTOMER_ID || '' }}
   DNS_ZONE: ${{ fromJson(github.event.inputs.parameters).DNS_ZONE || 'blockchainlab.network' }} 
+  DNS_TYPE: ${{ fromJson(github.event.inputs.parameters).DNS_TYPE || 'public' }}
   LOCATION: ${{ fromJson(github.event.inputs.parameters).LOCATION || '' }}
   NETWORK_ID: ${{ fromJson(github.event.inputs.parameters).NETWORK_ID || '' }}
   ORGANIZATION: ${{ fromJson(github.event.inputs.parameters).ORGANIZATION || '' }}
@@ -105,6 +106,7 @@ jobs:
           COUNTRY: ${{ env.COUNTRY }}
           CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
           DNS_ZONE: ${{ env.DNS_ZONE }}
+          DNS_TYPE: ${{ env.DNS_TYPE }}
           LOCATION: ${{ env.LOCATION }}
           NETWORK_ID: ${{ env.NETWORK_ID }}
           ORGANIZATION: ${{ env.ORGANIZATION }}
@@ -142,6 +144,7 @@ jobs:
           COUNTRY: ${{ env.COUNTRY }}
           CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
           DNS_ZONE: ${{ env.DNS_ZONE }}
+          DNS_TYPE: ${{ env.DNS_TYPE }}
           LOCATION: ${{ env.LOCATION }}
           NETWORK_ID: ${{ env.NETWORK_ID }}
           ORGANIZATION: ${{ env.ORGANIZATION }}
@@ -178,6 +181,7 @@ jobs:
           COUNTRY: ${{ env.COUNTRY }}
           CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
           DNS_ZONE: ${{ env.DNS_ZONE }}
+          DNS_TYPE: ${{ env.DNS_TYPE }}
           LOCATION: ${{ env.LOCATION }}
           NETWORK_ID: ${{ env.NETWORK_ID }}
           ORGANIZATION: ${{ env.ORGANIZATION }}
@@ -214,6 +218,7 @@ jobs:
           COUNTRY: ${{ env.COUNTRY }}
           CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
           DNS_ZONE: ${{ env.DNS_ZONE }}
+          DNS_TYPE: ${{ env.DNS_TYPE }}
           LOCATION: ${{ env.LOCATION }}
           NETWORK_ID: ${{ env.NETWORK_ID }}
           ORGANIZATION: ${{ env.ORGANIZATION }}
@@ -250,6 +255,7 @@ jobs:
           COUNTRY: ${{ env.COUNTRY }}
           CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
           DNS_ZONE: ${{ env.DNS_ZONE }}
+          DNS_TYPE: ${{ env.DNS_TYPE }}
           LOCATION: ${{ env.LOCATION }}
           NETWORK_ID: ${{ env.NETWORK_ID }}
           ORGANIZATION: ${{ env.ORGANIZATION }}
@@ -287,6 +293,7 @@ jobs:
           COUNTRY: ${{ env.COUNTRY }}
           CUSTOMER_ID: ${{ env.CUSTOMER_ID }}
           DNS_ZONE: ${{ env.DNS_ZONE }}
+          DNS_TYPE: ${{ env.DNS_TYPE }}
           LOCATION: ${{ env.LOCATION }}
           NETWORK_ID: ${{ env.NETWORK_ID }}
           ORGANIZATION: ${{ env.ORGANIZATION }}
