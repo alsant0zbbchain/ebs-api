@@ -9,14 +9,13 @@ on:
         required: true
         type: string  
       parameters:
-        description: 'Variables in JSON format'
+        description: 'Variables in json wrapped'
         required: true
-        type: string
 
 jobs:
   check-required-env-variables:
-    name: "Check required environment variables"
-    runs-on: [self-hosted, azure]
+    name: "required-env-variables"
+    runs-on: [ self-hosted, azure ]
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -24,72 +23,82 @@ jobs:
           secrets: ${{ toJSON(vars) }}
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
-          secrets: ${{ toJSON(secrets) }}
-      - name: Parse parameters
-        run: |
-          echo "Parsing parameters input..."
-          echo "${{ github.event.inputs.parameters }}" > parameters.json
-          jq -r '. | to_entries | .[] | "echo \(.key)=\(.value) >> $GITHUB_ENV"' parameters.json | bash
-      - name: Print all environment variables - Test
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}
+      - name: Print all envs - Test
         run: |
           echo "Printing all environment variables:"
-          env
+          env    
       - name: Checking COMPONENT_ID
-        if: ${{ env.COMPONENT_ID == '' }}
+        if: ${{ env.COMPONENT_ID == '' }} 
         uses: actions/github-script@v3
         with:
           script: |
-            core.setFailed('COMPONENT_ID is required')
+              core.setFailed('COMPONENT_ID is required') 
       - name: Checking COMPONENT_NAME
-        if: ${{ env.COMPONENT_NAME == '' }}
+        if: ${{ env.COMPONENT_NAME == '' }} 
         uses: actions/github-script@v3
         with:
           script: |
-            core.setFailed('COMPONENT_NAME is required')
+              core.setFailed('COMPONENT_NAME is required')     
       - name: Checking CUSTOMER_ID
-        if: ${{ env.CUSTOMER_ID == '' }}
+        if: ${{ env.CUSTOMER_ID == '' }} 
         uses: actions/github-script@v3
         with:
           script: |
-            core.setFailed('CUSTOMER_ID is required')
+              core.setFailed('CUSTOMER_ID is required') 
       - name: Checking NETWORK_ID
-        if: ${{ env.NETWORK_ID == '' }}
+        if: ${{ env.NETWORK_ID == '' }} 
         uses: actions/github-script@v3
         with:
           script: |
-            core.setFailed('NETWORK_ID is required')
-
+              core.setFailed('NETWORK_ID is required')        
+                
   checkout-ansible-pipelines:
-    name: "Checkout Ansible Pipelines"
-    runs-on: [self-hosted, azure]
+    name: "checkout-ansible-pipelines"
+    runs-on: [ self-hosted, azure ]
     needs: [check-required-env-variables]
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - name: Checkout Azure DevOps repo
         run: |
-          rm -rf ${{ env.FOUNDATION_REPO_PATH }}
-          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ env.FOUNDATION_REPO_URL }}
-          cd ${{ env.FOUNDATION_REPO_PATH }}
-          git checkout ${{ env.BRANCH }}
+          rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          git checkout ${{ vars.BRANCH }}
           echo "Cloned Azure DevOps repository"
 
   deploy-backend-api:
-    name: "Deploy Backend API"
-    runs-on: [self-hosted, azure]
+    name: "deploy-backend-api"
+    runs-on: [ self-hosted, azure ]
     needs: [checkout-ansible-pipelines]
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
       - name: Installing collection
         run: |
-          cd ${{ env.FOUNDATION_REPO_PATH }}
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-galaxy collection install -r infra-requirements.yaml -vvvv
       - name: Deploy API
         run: |
-          cd ${{ env.FOUNDATION_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ env.NAMESPACE_PLAYBOOK }} --tags="login,api_deploy" -vvvv
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} --tags="login,api_deploy" -vvvv
