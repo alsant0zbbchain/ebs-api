@@ -26,7 +26,37 @@ jobs:
           secrets: ${{ toJSON(secrets) }}       
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
-          secrets: ${{ github.event.inputs.parameters }}                       
+          secrets: ${{ github.event.inputs.parameters }}           
+      - name: Checking PROMETHEUS_METRICS_PORT
+        if: ${{ env.PROMETHEUS_METRICS_PORT == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('PROMETHEUS_METRICS_PORT is required')    
+      - name: Checking PROMETHEUS_PUSH_PORT
+        if: ${{ env.PROMETHEUS_PUSH_PORT == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('PROMETHEUS_PUSH_PORT is required')    
+      - name: Checking RPC_HTTP_PORT
+        if: ${{ env.RPC_HTTP_PORT == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('RPC_HTTP_PORT is required')    
+      - name: Checking NETWORK_OWNER
+        if: ${{ env.RPC_WS_PORT == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('RPC_WS_PORT is required')    
+      - name: Checking P2P_PORT
+        if: ${{ env.P2P_PORT == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('P2P_PORT is required')                                                                                  
       - name: Checking NETWORK_OWNER
         if: ${{ env.NETWORK_OWNER == '' }} 
         uses: actions/github-script@v3
