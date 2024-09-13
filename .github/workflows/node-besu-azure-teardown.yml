@@ -111,7 +111,7 @@ jobs:
           cd ${{ vars.BESU_REPO_PATH }}
           cat infra-requirements.yaml
           ansible-galaxy collection install -r infra-requirements.yaml
-          echo " ansible-playbook -i inventories/hosts.yaml ${{ vars.NEW_BESU_VALIDATOR_PLAYBOOK }} --tags="tear_down,login" -vvvv" 
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.NEW_BESU_VALIDATOR_PLAYBOOK }} --tags="tear_down,login" -vvvv
   drop-besu-node:
     name: "drop-besu-node"
     runs-on: [ self-hosted, azure ]
@@ -130,7 +130,7 @@ jobs:
       - name: Running playbook to drop node
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
-          echo "ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="tear_down,login" -vvvv"
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="tear_down,login" -vvvv
   drop-quorum-explorer:
     name: "drop-quorum-explorer"
     runs-on: [ self-hosted, azure ]
@@ -149,7 +149,7 @@ jobs:
       - name: Running playbook to drop QUORUM-EXPLORER
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
-          echo "ansible-playbook -i inventories/hosts.yaml ${{ vars.QUORUM_RELEASE_GENESIS_PLAYBOOK }} --tags="tear_down" -vvvv"
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.QUORUM_RELEASE_GENESIS_PLAYBOOK }} --tags="tear_down" -vvvv
   drop-blockscout:
     name: "drop-blockscout"
     runs-on: [ self-hosted, azure ]
@@ -168,7 +168,7 @@ jobs:
       - name: Running playbook to drop blockscout
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
-          echo "ansible-playbook -i inventories/hosts.yaml ${{ vars.BLOCKSCOUT_PLAYBOOK }} --tags="tear_down" -vvvv"
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.BLOCKSCOUT_PLAYBOOK }} --tags="tear_down" -vvvv
   clean-resources:
     name: "clean-resources"
     runs-on: [ self-hosted, azure ]
