@@ -1,4 +1,4 @@
-name: Hyperledger Besu Teardown Backend API
+name: Hyperledger Besu Deploy Backend API - Tear Down
 run-name: ${{ inputs.identifier }}
 
 on:
