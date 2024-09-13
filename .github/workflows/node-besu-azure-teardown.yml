@@ -1,4 +1,4 @@
-name: Hyperledger Besu Node Azure
+name: Hyperledger Besu Node Azure - Tear Down
 run-name: ${{ inputs.identifier }}
 
 on:
@@ -26,7 +26,49 @@ jobs:
           secrets: ${{ toJSON(secrets) }}       
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
-          secrets: ${{ github.event.inputs.parameters }}                       
+          secrets: ${{ github.event.inputs.parameters }}           
+      - name: Checking PROMETHEUS_METRICS_PORT
+        if: ${{ env.PROMETHEUS_METRICS_PORT == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('PROMETHEUS_METRICS_PORT is required')    
+      - name: Checking PROMETHEUS_PUSH_PORT
+        if: ${{ env.PROMETHEUS_PUSH_PORT == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('PROMETHEUS_PUSH_PORT is required')    
+      - name: Checking RPC_HTTP_PORT
+        if: ${{ env.RPC_HTTP_PORT == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('RPC_HTTP_PORT is required')    
+      - name: Checking NETWORK_OWNER
+        if: ${{ env.RPC_WS_PORT == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('RPC_WS_PORT is required')    
+      - name: Checking P2P_PORT
+        if: ${{ env.P2P_PORT == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('P2P_PORT is required')                                                                                  
+      - name: Checking NETWORK_OWNER
+        if: ${{ env.NETWORK_OWNER == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('NETWORK_OWNER is required')               
+      - name: Checking COMPONENT_ID
+        if: ${{ env.COMPONENT_ID == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('COMPONENT_ID is required')     
       - name: Checking COMPONENT_NAME
         if: ${{ env.COMPONENT_NAME == '' }} 
         uses: actions/github-script@v3
@@ -50,7 +92,13 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('NODES_DATA is required')               
+              core.setFailed('NODES_DATA is required') 
+      - name: Checking VALIDATORS_DATA
+        if: ${{ env.VALIDATORS_DATA == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('VALIDATORS_DATA is required')               
   checkout-anisble-pipelines:
     name: "checkout-ansible-pipelines"
     runs-on: [ self-hosted, azure ]
@@ -85,8 +133,8 @@ jobs:
           tokenPrefix: '${'
           tokenSuffix: '}'
           files: '["**/infra-requirements.yaml"]'          
-  create-foundation-components:
-    name: "create-foundation-components"
+  drop-foundation-components:
+    name: "drop-foundation-components:"
     runs-on: [ self-hosted, azure ]
     needs: [checkout-anisble-pipelines]
     environment: dev-azure
@@ -100,16 +148,16 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}    
-      - name: Running playbook to create foundation components
+      - name: Running playbook to drop foundation components
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
           cat infra-requirements.yaml
           ansible-galaxy collection install -r infra-requirements.yaml
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="release,login" -vvvv
-  deploy-node:
-    name: "deploy-node"
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.NEW_BESU_VALIDATOR_PLAYBOOK }} --tags="tear_down,login" -vvvv
+  drop-besu-node:
+    name: "drop-besu-node"
     runs-on: [ self-hosted, azure ]
-    needs: [create-foundation-components]
+    needs: [drop-foundation-components]
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -121,14 +169,14 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}    
-      - name: Running playbook to deploy node
+      - name: Running playbook to drop node
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="deploy,login" -vvvv
-  deploy-blockscout:
-    name: "deploy-blockscout"
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="tear_down,login" -vvvv
+  drop-quorum-explorer:
+    name: "drop-quorum-explorer"
     runs-on: [ self-hosted, azure ]
-    needs: [deploy-node]
+    needs: [drop-besu-node]
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -140,7 +188,45 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}    
-      - name: Running playbook to deploy node
+      - name: Running playbook to drop QUORUM-EXPLORER
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.BLOCKSCOUT_PLAYBOOK }} --tags="release" -vvvv
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.QUORUM_RELEASE_GENESIS_PLAYBOOK }} --tags="tear_down" -vvvv
+  drop-blockscout:
+    name: "drop-blockscout"
+    runs-on: [ self-hosted, azure ]
+    needs: [drop-quorum-explorer]
+    environment: dev-azure
+    steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
+      - name: Running playbook to drop blockscout
+        run: |
+          cd ${{ vars.BESU_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.BLOCKSCOUT_PLAYBOOK }} --tags="tear_down" -vvvv
+  clean-resources:
+    name: "clean-resources"
+    runs-on: [ self-hosted, azure ]
+    needs: [drop-blockscout]
+    environment: dev-azure
+    steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}    
+      - name: Running playbook to clean resources
+        run: |
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.CLEAN_PLAYBOOK }} --tags="tear_down" -vvvv                    

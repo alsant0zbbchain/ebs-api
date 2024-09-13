@@ -1,4 +1,4 @@
-name: Hyperledger Besu Node Azure
+name: Hyperledger Besu New Node Azure
 run-name: ${{ inputs.identifier }}
 
 on:
