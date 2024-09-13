@@ -49,6 +49,12 @@ jobs:
         with:
           script: |
               core.setFailed('DEPLOY_ID is required')
+      - name: Checking DEPLOYMENT_ID
+        if: ${{ env.DEPLOYMENT_ID == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('DEPLOYMENT_ID is required')              
       - name: Checking COMPONENT_ID
         if: ${{ env.COMPONENT_ID == '' }} 
         uses: actions/github-script@v3
@@ -67,6 +73,12 @@ jobs:
         with:
           script: |
               core.setFailed('CUSTOMER_ID is required') 
+      - name: Checking FILE_PATH
+        if: ${{ env.FILE_PATH == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('FILE_PATH is required')               
       - name: Checking NETWORK_ID
         if: ${{ env.NETWORK_ID == '' }} 
         uses: actions/github-script@v3
