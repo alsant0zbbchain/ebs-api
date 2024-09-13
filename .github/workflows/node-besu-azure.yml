@@ -105,7 +105,7 @@ jobs:
           cd ${{ vars.BESU_REPO_PATH }}
           cat infra-requirements.yaml
           ansible-galaxy collection install -r infra-requirements.yaml
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="release,login" -vvvv
+          echo "ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="release,login" -vvvv"
   deploy-node:
     name: "deploy-node"
     runs-on: [ self-hosted, azure ]
@@ -124,7 +124,7 @@ jobs:
       - name: Running playbook to deploy node
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="deploy,login" -vvvv
+          echo "ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="deploy,login" -vvvv"
   deploy-blockscout:
     name: "deploy-blockscout"
     runs-on: [ self-hosted, azure ]
@@ -143,4 +143,4 @@ jobs:
       - name: Running playbook to deploy node
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="release" -vvvv
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.BLOCKSCOUT_PLAYBOOK }} --tags="release" -vvvv
