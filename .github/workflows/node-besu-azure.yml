@@ -51,6 +51,24 @@ jobs:
         with:
           script: |
               core.setFailed('NODES_DATA is required')               
+      - name: Checking ORGANIZATION
+        if: ${{ env.ORGANIZATION == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('ORGANIZATION is required')    
+      - name: Checking VALIDATOR
+        if: ${{ env.VALIDATOR == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('VALIDATOR is required')    
+      - name: Checking BOOTNODE
+        if: ${{ env.BOOTNODE == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('BOOTNODE is required')                                              
   checkout-anisble-pipelines:
     name: "checkout-ansible-pipelines"
     runs-on: [ self-hosted, azure ]

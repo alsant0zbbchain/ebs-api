@@ -33,6 +33,12 @@ jobs:
         with:
           script: |
               core.setFailed('COMPONENT_NAME is required')     
+      - name: Checking COMPONENT_ID
+        if: ${{ env.COMPONENT_ID == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('COMPONENT_ID is required')                   
       - name: Checking CUSTOMER_ID
         if: ${{ env.CUSTOMER_ID == '' }} 
         uses: actions/github-script@v3
@@ -44,13 +50,43 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('NETWORK_ID is required')        
+              core.setFailed('NETWORK_ID is required')     
+      - name: Checking NETWORK_OWNER
+        if: ${{ env.NETWORK_OWNER == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('NETWORK_OWNER is required')                   
+      - name: Checking ORGANIZATION
+        if: ${{ env.ORGANIZATION == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('ORGANIZATION is required')     
+      - name: Checking VALIDATOR
+        if: ${{ env.VALIDATOR == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('VALIDATOR is required')       
+      - name: Checking BOOTNODE
+        if: ${{ env.BOOTNODE == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('BOOTNODE is required')                                            
       - name: Checking NODES_DATA
         if: ${{ env.NODES_DATA == '' }} 
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('NODES_DATA is required')               
+              core.setFailed('NODES_DATA is required')      
+      - name: Checking VALIDATORS_DATA
+        if: ${{ env.VALIDATORS_DATA == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('VALIDATORS_DATA is required')                            
   checkout-anisble-pipelines:
     name: "checkout-ansible-pipelines"
     runs-on: [ self-hosted, azure ]
