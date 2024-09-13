@@ -1,4 +1,4 @@
-name: Hyperledger Besu Deploy Backend API
+name: Hyperledger Besu Deploy Backend API - Tear Down
 run-name: ${{ inputs.identifier }}
 
 on:
@@ -139,8 +139,8 @@ jobs:
           tokenSuffix: '}'
           files: '["**/infra-requirements.yaml"]'
 
-  deploy-backend-api:
-    name: "deploy-backend-api"
+  teardown-backend-api:
+    name: "teardown-backend-api"
     runs-on: [ self-hosted, azure ]
     needs: [checkout-ansible-pipelines]
     environment: dev-azure
@@ -161,4 +161,4 @@ jobs:
       - name: Deploy API
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="login,api_deploy" -vvvv
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="login,tear_down" -vvvv
