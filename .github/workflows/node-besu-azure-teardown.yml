@@ -27,6 +27,12 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}                       
+      - name: Checking COMPONENT_ID
+        if: ${{ env.COMPONENT_ID == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('COMPONENT_ID is required')     
       - name: Checking COMPONENT_NAME
         if: ${{ env.COMPONENT_NAME == '' }} 
         uses: actions/github-script@v3
