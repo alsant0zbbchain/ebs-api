@@ -114,7 +114,43 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('NODE_ID is required')        
+              core.setFailed('NODE_ID is required') 
+      - name: Checking JAVA_VERSION
+        if: ${{ env.JAVA_VERSION == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('JAVA_VERSION is required')    
+      - name: Checking NODE_ADDRESS
+        if: ${{ env.NODE_ADDRESS == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('NODE_ADDRESS is required')    
+      - name: Checking STORAGE_CONTAINER_NAME
+        if: ${{ env.STORAGE_CONTAINER_NAME == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('STORAGE_CONTAINER_NAME is required')          
+      - name: Checking VERSION_ID
+        if: ${{ env.VERSION_ID == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('VERSION_ID is required')      
+      - name: Checking VERSION_NAME
+        if: ${{ env.VERSION_NAME == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('VERSION_NAME is required')      
+      - name: Checking VERSION_NUMBER
+        if: ${{ env.VERSION_NUMBER == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('VERSION_NUMBER is required')                                                                                        
                 
   checkout-ansible-pipelines:
     name: "checkout-ansible-pipelines"
