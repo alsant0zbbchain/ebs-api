@@ -31,6 +31,24 @@ jobs:
         run: |
           echo "Printing all environment variables:"
           env
+      - name: Checking APP_ID
+        if: ${{ env.APP_ID == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('APP_ID is required')
+      - name: Checking APP_VARIABLES
+        if: ${{ env.APP_VARIABLES == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('APP_VARIABLES is required')
+      - name: Checking DEPLOY_ID
+        if: ${{ env.DEPLOY_ID == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('DEPLOY_ID is required')
       - name: Checking COMPONENT_ID
         if: ${{ env.COMPONENT_ID == '' }} 
         uses: actions/github-script@v3
@@ -54,7 +72,37 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('NETWORK_ID is required')        
+              core.setFailed('NETWORK_ID is required')
+      - name: Checking NETWORK_OWNER
+        if: ${{ env.NETWORK_OWNER == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('NETWORK_OWNER is required')
+      - name: Checking KEYCLOAK_REALM
+        if: ${{ env.KEYCLOAK_REALM == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('KEYCLOAK_REALM is required')
+      - name: Checking KEYCLOAK_RESOURCE
+        if: ${{ env.KEYCLOAK_RESOURCE == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('KEYCLOAK_RESOURCE is required')
+      - name: Checking KEYCLOAK_URL
+        if: ${{ env.KEYCLOAK_URL == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('KEYCLOAK_URL is required')
+      - name: Checking NODE_ID
+        if: ${{ env.NODE_ID == '' }} 
+        uses: actions/github-script@v3
+        with:
+          script: |
+              core.setFailed('NODE_ID is required')        
                 
   checkout-ansible-pipelines:
     name: "checkout-ansible-pipelines"
