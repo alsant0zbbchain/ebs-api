@@ -168,7 +168,7 @@ jobs:
       - name: Running playbook to drop blockscout
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.BLOCKSCOUT_PLAYBOOK }} --tags="tear_down" -vvvv          
+          echo "ansible-playbook -i inventories/hosts.yaml ${{ vars.BLOCKSCOUT_PLAYBOOK }} --tags="tear_down" -vvvv"
   clean-resources:
     name: "clean-resources"
     runs-on: [ self-hosted, azure ]
@@ -186,5 +186,5 @@ jobs:
           secrets: ${{ github.event.inputs.parameters }}    
       - name: Running playbook to clean resources
         run: |
-          cd ${{ vars.BESU_REPO_PATH }}
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.CLEAN_PLAYBOOK }} --tags="tear_down" -vvvv                    
