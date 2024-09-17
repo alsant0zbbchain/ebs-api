@@ -1,4 +1,4 @@
-name: Hyperledger Besu Update Backend API
+name: Hyperledger Besu Update Backend API Azure
 run-name: ${{ inputs.identifier }}
 
 on:

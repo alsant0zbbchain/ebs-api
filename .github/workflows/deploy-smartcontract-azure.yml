@@ -1,4 +1,4 @@
-name: Hyperledger Besu Update Backend API
+name: Hyperledger Besu Deploy Smart Contract Azure
 run-name: ${{ inputs.identifier }}
 
 on:
