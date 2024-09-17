@@ -27,40 +27,36 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}
-      - name: Print envs - test
-        run: |
-          echo "Printing all environment variables:"
-          env
       - name: Checking APP_ID
         if: ${{ env.APP_ID == '' }} 
         uses: actions/github-script@v3
         with:
           script: |
               core.setFailed('APP_ID is required')
-      - name: Checking APP_VARIABLES
-        if: ${{ env.APP_VARIABLES == '' }} 
+      - name: Checking CONSTRUCTOR_VARS
+        if: ${{ env.CONSTRUCTOR_VARS == '' }} 
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('APP_VARIABLES is required')
+              core.setFailed('CONSTRUCTOR_VARS is required')
       - name: Checking DEPLOY_ID
         if: ${{ env.DEPLOY_ID == '' }} 
         uses: actions/github-script@v3
         with:
           script: |
               core.setFailed('DEPLOY_ID is required')
-      - name: Checking DEPLOYMENT_ID
-        if: ${{ env.DEPLOYMENT_ID == '' }} 
+      - name: Checking CONTRACT_NAME
+        if: ${{ env.CONTRACT_NAME == '' }} 
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('DEPLOYMENT_ID is required')    
-      - name: Checking FILE_PATH
-        if: ${{ env.FILE_PATH == '' }} 
+              core.setFailed('CONTRACT_NAME is required')    
+      - name: Checking CONTRACT_PATH
+        if: ${{ env.CONTRACT_PATH == '' }} 
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('FILE_PATH is required')                              
+              core.setFailed('CONTRACT_PATH is required')                              
       - name: Checking COMPONENT_ID
         if: ${{ env.COMPONENT_ID == '' }} 
         uses: actions/github-script@v3
@@ -91,60 +87,24 @@ jobs:
         with:
           script: |
               core.setFailed('NETWORK_OWNER is required')
-      - name: Checking KEYCLOAK_REALM
-        if: ${{ env.KEYCLOAK_REALM == '' }} 
+      - name: Checking NODE_NAME
+        if: ${{ env.NODE_NAME == '' }} 
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('KEYCLOAK_REALM is required')
-      - name: Checking KEYCLOAK_RESOURCE
-        if: ${{ env.KEYCLOAK_RESOURCE == '' }} 
+              core.setFailed('NODE_NAME is required')
+      - name: Checking RPC_PORT
+        if: ${{ env.RPC_PORT == '' }} 
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('KEYCLOAK_RESOURCE is required')
-      - name: Checking KEYCLOAK_URL
-        if: ${{ env.KEYCLOAK_URL == '' }} 
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('KEYCLOAK_URL is required')
-      - name: Checking NODE_ID
-        if: ${{ env.NODE_ID == '' }} 
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('NODE_ID is required') 
-      - name: Checking JAVA_VERSION
-        if: ${{ env.JAVA_VERSION == '' }} 
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('JAVA_VERSION is required')    
-      - name: Checking NODE_ADDRESS
-        if: ${{ env.NODE_ADDRESS == '' }} 
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('NODE_ADDRESS is required')    
+              core.setFailed('RPC_PORT is required')
       - name: Checking STORAGE_CONTAINER_NAME
         if: ${{ env.STORAGE_CONTAINER_NAME == '' }} 
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('STORAGE_CONTAINER_NAME is required')          
-      - name: Checking VERSION_ID
-        if: ${{ env.VERSION_ID == '' }} 
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('VERSION_ID is required')      
-      - name: Checking VERSION_NAME
-        if: ${{ env.VERSION_NAME == '' }} 
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('VERSION_NAME is required')      
+              core.setFailed('STORAGE_CONTAINER_NAME is required')
       - name: Checking VERSION_NUMBER
         if: ${{ env.VERSION_NUMBER == '' }} 
         uses: actions/github-script@v3
@@ -185,8 +145,8 @@ jobs:
           ansible-galaxy collection install -r infra-requirements.yaml
           echo "Requirements installed"          
 
-  update-backend-api:
-    name: "update-backend-api"
+  deploy-smart-contract:
+    name: "deploy-smart-contract"
     runs-on: [ self-hosted, azure ]
     needs: [checkout-ansible-pipelines]
     environment: dev-azure
@@ -203,4 +163,4 @@ jobs:
       - name: Deploy API
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.DEPLOY_API_PLAYBOOK }} --tags="login,api_update" -vvvv
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.DEPLOY_APPS_PLAYBOOK }} --tags="login,smart_contract" -vvvv
