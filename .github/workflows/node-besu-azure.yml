@@ -15,7 +15,7 @@ on:
 jobs:
   check-required-env-variables:
     name: "required-env-variables"
-    runs-on: [ self-hosted, azure ]
+    runs-on: runner-azure
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -69,9 +69,9 @@ jobs:
         with:
           script: |
               core.setFailed('BOOTNODE is required')                                              
-  checkout-anisble-pipelines:
-    name: "checkout-ansible-pipelines"
-    runs-on: [ self-hosted, azure ]
+  deploy-node:
+    name: "deploy-node"
+    runs-on: runner-azure
     needs: [check-required-env-variables]
     environment: dev-azure
     steps:
@@ -103,62 +103,17 @@ jobs:
           tokenPrefix: '${'
           tokenSuffix: '}'
           files: '["**/infra-requirements.yaml"]'          
-  create-foundation-components:
-    name: "create-foundation-components"
-    runs-on: [ self-hosted, azure ]
-    needs: [checkout-anisble-pipelines]
-    environment: dev-azure
-    steps:
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(vars) }}
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(secrets) }}       
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ github.event.inputs.parameters }}    
       - name: Running playbook to create foundation components
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
           cat infra-requirements.yaml
           ansible-galaxy collection install -r infra-requirements.yaml
           ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="release,login" -vvvv
-  deploy-node:
-    name: "deploy-node"
-    runs-on: [ self-hosted, azure ]
-    needs: [create-foundation-components]
-    environment: dev-azure
-    steps:
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(vars) }}
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(secrets) }}       
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ github.event.inputs.parameters }}    
       - name: Running playbook to deploy node
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="deploy,login" -vvvv
-  deploy-blockscout:
-    name: "deploy-blockscout"
-    runs-on: [ self-hosted, azure ]
-    needs: [deploy-node]
-    environment: dev-azure
-    steps:
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(vars) }}
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(secrets) }}       
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ github.event.inputs.parameters }}    
-      - name: Running playbook to deploy node
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="deploy,login" -vvvv 
+      - name: Running playbook to deploy blockscout
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.BLOCKSCOUT_PLAYBOOK }} --tags="release" -vvvv

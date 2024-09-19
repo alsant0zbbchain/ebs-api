@@ -15,7 +15,7 @@ on:
 jobs:
   check-required-env-variables:
     name: "required-env-variables"
-    runs-on: [ self-hosted, azure ]
+    runs-on: runner-azure
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -104,9 +104,9 @@ jobs:
           script: |
               core.setFailed('NODE_ID is required')        
                 
-  checkout-ansible-pipelines:
-    name: "checkout-ansible-pipelines"
-    runs-on: [ self-hosted, azure ]
+  teardown-backend-api:
+    name: "teardown-backend-api"
+    runs-on: runner-azure
     needs: [check-required-env-variables]
     environment: dev-azure
     steps:
@@ -119,13 +119,6 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}    
-      - name: Checkout Azure DevOps repo
-        run: |
-          rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
-          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
-          cd ${{ vars.FOUNDATION_REPO_PATH }}
-          git checkout ${{ vars.BRANCH }}
-          echo "Cloned Azure DevOps repository"
       - name: Checkout Azure Besu DevOps repo
         run: |
           rm -rf ${{ vars.BESU_REPO_PATH }}
@@ -138,27 +131,11 @@ jobs:
           tokenPrefix: '${'
           tokenSuffix: '}'
           files: '["**/infra-requirements.yaml"]'
-
-  teardown-backend-api:
-    name: "teardown-backend-api"
-    runs-on: [ self-hosted, azure ]
-    needs: [checkout-ansible-pipelines]
-    environment: dev-azure
-    steps:
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(vars) }}
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(secrets) }}       
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ github.event.inputs.parameters }}    
       - name: Installing collection
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
           ansible-galaxy collection install -r infra-requirements.yaml -vvvv
-      - name: Deploy API
+      - name: Drop API
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="login,tear_down" -vvvv

@@ -15,7 +15,7 @@ on:
 jobs:
   check-required-env-variables:
     name: "required-env-variables"
-    runs-on: [ self-hosted, azure ]
+    runs-on: runner-azure
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -50,10 +50,10 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('NETWORK_ID is required')                   
-  checkout-anisble-pipelines-besu:
-    name: "checkout-ansible-pipelines-besu"
-    runs-on: [ self-hosted, azure ]
+              core.setFailed('NETWORK_ID is required')                         
+  drop-explorer:
+    name: "drop-explorer"
+    runs-on: runner-azure
     needs: [check-required-env-variables]
     environment: dev-azure
     steps:
@@ -66,50 +66,13 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}    
-      - name: Checkout Azure DevOps repo
+      - name: Checkout besu repo
         run: |
           rm -rf ${{ vars.BESU_REPO_PATH }}
           git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.BESU_REPO_URL }}
           cd ${{ vars.BESU_REPO_PATH }}
           git checkout ${{ vars.BRANCH }}
-          echo "Cloned Azure DevOps repository"   
-  checkout-anisble-pipelines:
-    name: "checkout-ansible-pipelines"
-    runs-on: [ self-hosted, azure ]
-    needs: [check-required-env-variables]
-    environment: dev-azure
-    steps:
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(vars) }}
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(secrets) }}       
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ github.event.inputs.parameters }}    
-      - name: Checkout Azure DevOps repo
-        run: |
-          rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
-          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
-          cd ${{ vars.FOUNDATION_REPO_PATH }}
-          git checkout ${{ vars.BRANCH }}
-          echo "Cloned Azure DevOps repository"          
-  drop-explorer:
-    name: "drop-explorer"
-    runs-on: [ self-hosted, azure ]
-    needs: [checkout-anisble-pipelines, checkout-anisble-pipelines-besu]
-    environment: dev-azure
-    steps:
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(vars) }}
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(secrets) }}       
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ github.event.inputs.parameters }}    
+          echo "Cloned Azure DevOps repository" 
       - uses: cschleiden/replace-tokens@v1
         with:
           tokenPrefix: '${'
@@ -122,8 +85,8 @@ jobs:
           ansible-playbook -i inventories/hosts.yaml quorum-release.yaml --tags="login,tear_down" -vvvv
   drop-storage:
     name: "drop-storage"
-    runs-on: [ self-hosted, azure ]
-    needs: [checkout-anisble-pipelines, checkout-anisble-pipelines-besu]
+    runs-on: runner-azure
+    needs: [check-required-env-variables]
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -135,14 +98,21 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}    
+      - name: Checkout foundation repo
+        run: |
+          rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          git checkout ${{ vars.BRANCH }}
+          echo "Cloned Azure DevOps repository"              
       - name: Running playbook to drop storage
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.STORAGE_PLAYBOOK }}  --tags="never,tear_down" -vvvv
   drop-database:
     name: "drop-database"
-    runs-on: [ self-hosted, azure ]
-    needs: [checkout-anisble-pipelines, checkout-anisble-pipelines-besu]
+    runs-on: runner-azure
+    needs: [check-required-env-variables]
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -153,15 +123,22 @@ jobs:
           secrets: ${{ toJSON(secrets) }}       
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
-          secrets: ${{ github.event.inputs.parameters }}    
+          secrets: ${{ github.event.inputs.parameters }}  
+      - name: Checkout foundation repo
+        run: |
+          rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          git checkout ${{ vars.BRANCH }}
+          echo "Cloned Azure DevOps repository"                
       - name: Running playbook to drop database
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.DATABASE_PLAYBOOK }} --tags="never,tear_down" -vvvv
   drop-keyvault:
     name: "drop-keyvault"
-    runs-on: [ self-hosted, azure ]
-    needs: [checkout-anisble-pipelines, checkout-anisble-pipelines-besu]
+    runs-on: runner-azure
+    needs: [check-required-env-variables]
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -172,14 +149,28 @@ jobs:
           secrets: ${{ toJSON(secrets) }}       
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
-          secrets: ${{ github.event.inputs.parameters }}    
+          secrets: ${{ github.event.inputs.parameters }}   
+      - name: Checkout foundation repo
+        run: |
+          rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          git checkout ${{ vars.BRANCH }}
+          echo "Cloned Azure DevOps repository"              
+      - name: Checkout foundation repo
+        run: |
+          rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          git checkout ${{ vars.BRANCH }}
+          echo "Cloned Azure DevOps repository"               
       - name: Running playbook to drop keyvault
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.KEYVAULT_PLAYBOOK }} --tags="never,tear_down" -vvvv
   drop-service-principal:
     name: "drop-service-principal"
-    runs-on: [ self-hosted, azure ]
+    runs-on: runner-azure
     needs: [drop-explorer, drop-storage, drop-database, drop-keyvault]
     environment: dev-azure
     steps:
@@ -192,6 +183,13 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}    
+      - name: Checkout foundation repo
+        run: |
+          rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          git checkout ${{ vars.BRANCH }}
+          echo "Cloned Azure DevOps repository"               
       - name: Running playbook to drop service-principal
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
@@ -199,7 +197,7 @@ jobs:
 
   drop-namespace:
     name: "drop-namespace"
-    runs-on: [ self-hosted, azure ]
+    runs-on: runner-azure
     needs: [drop-service-principal]
     environment: dev-azure
     steps:
@@ -211,7 +209,14 @@ jobs:
           secrets: ${{ toJSON(secrets) }}       
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
-          secrets: ${{ github.event.inputs.parameters }}    
+          secrets: ${{ github.event.inputs.parameters }} 
+      - name: Checkout foundation repo
+        run: |
+          rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          git checkout ${{ vars.BRANCH }}
+          echo "Cloned Azure DevOps repository"                  
       - name: Running playbook to drop namespace
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
