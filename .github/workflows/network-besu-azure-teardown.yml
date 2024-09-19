@@ -15,7 +15,7 @@ on:
 jobs:
   check-required-env-variables:
     name: "required-env-variables"
-    runs-on: azure
+    runs-on: [ self-hosted, azure ]
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -53,7 +53,7 @@ jobs:
               core.setFailed('NETWORK_ID is required')                   
   checkout-anisble-pipelines-besu:
     name: "checkout-ansible-pipelines-besu"
-    runs-on: azure
+    runs-on: [ self-hosted, azure ]
     needs: [check-required-env-variables]
     environment: dev-azure
     steps:
@@ -75,7 +75,7 @@ jobs:
           echo "Cloned Azure DevOps repository"   
   checkout-anisble-pipelines:
     name: "checkout-ansible-pipelines"
-    runs-on: azure
+    runs-on: [ self-hosted, azure ]
     needs: [check-required-env-variables]
     environment: dev-azure
     steps:
@@ -97,7 +97,7 @@ jobs:
           echo "Cloned Azure DevOps repository"          
   drop-explorer:
     name: "drop-explorer"
-    runs-on: azure
+    runs-on: [ self-hosted, azure ]
     needs: [checkout-anisble-pipelines, checkout-anisble-pipelines-besu]
     environment: dev-azure
     steps:
@@ -122,7 +122,7 @@ jobs:
           ansible-playbook -i inventories/hosts.yaml quorum-release.yaml --tags="login,tear_down" -vvvv
   drop-storage:
     name: "drop-storage"
-    runs-on: azure
+    runs-on: [ self-hosted, azure ]
     needs: [checkout-anisble-pipelines, checkout-anisble-pipelines-besu]
     environment: dev-azure
     steps:
@@ -141,7 +141,7 @@ jobs:
           ansible-playbook -i inventories/hosts.yaml ${{ vars.STORAGE_PLAYBOOK }}  --tags="never,tear_down" -vvvv
   drop-database:
     name: "drop-database"
-    runs-on: azure
+    runs-on: [ self-hosted, azure ]
     needs: [checkout-anisble-pipelines, checkout-anisble-pipelines-besu]
     environment: dev-azure
     steps:
@@ -160,7 +160,7 @@ jobs:
           ansible-playbook -i inventories/hosts.yaml ${{ vars.DATABASE_PLAYBOOK }} --tags="never,tear_down" -vvvv
   drop-keyvault:
     name: "drop-keyvault"
-    runs-on: azure
+    runs-on: [ self-hosted, azure ]
     needs: [checkout-anisble-pipelines, checkout-anisble-pipelines-besu]
     environment: dev-azure
     steps:
@@ -179,7 +179,7 @@ jobs:
           ansible-playbook -i inventories/hosts.yaml ${{ vars.KEYVAULT_PLAYBOOK }} --tags="never,tear_down" -vvvv
   drop-service-principal:
     name: "drop-service-principal"
-    runs-on: azure
+    runs-on: [ self-hosted, azure ]
     needs: [drop-explorer, drop-storage, drop-database, drop-keyvault]
     environment: dev-azure
     steps:
@@ -199,7 +199,7 @@ jobs:
 
   drop-namespace:
     name: "drop-namespace"
-    runs-on: azure
+    runs-on: [ self-hosted, azure ]
     needs: [drop-service-principal]
     environment: dev-azure
     steps:
