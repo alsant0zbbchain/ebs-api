@@ -83,7 +83,7 @@ jobs:
           rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
           git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
           cd ${{ vars.FOUNDATION_REPO_PATH }}
-          git checkout ${{ vars.BRANCH }}
+          git checkout features/github_actions
           echo "Cloned Azure DevOps repository"
       - name: Running playbook to create namespace
         run: |
