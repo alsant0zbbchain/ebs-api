@@ -15,7 +15,7 @@ on:
 jobs:
   check-required-env-variables:
     name: "required-env-variables"
-    runs-on: [ self-hosted, azure ]
+    runs-on: runner-azure
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -63,9 +63,9 @@ jobs:
         with:
           script: |
               core.setFailed('VALIDATORS is required')                  
-  checkout-anisble-pipelines:
-    name: "checkout-ansible-pipelines"
-    runs-on: [ self-hosted, azure ]
+  create-namespace-and-serviceprincipal:
+    name: "create-namespace-and-serviceprincipal"
+    runs-on: runner-azure
     needs: [check-required-env-variables]
     environment: dev-azure
     steps:
@@ -85,48 +85,18 @@ jobs:
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           git checkout ${{ vars.BRANCH }}
           echo "Cloned Azure DevOps repository"
-  create-namespace:
-    name: "create-namespace"
-    runs-on: [ self-hosted, azure ]
-    needs: [checkout-anisble-pipelines]
-    environment: dev-azure
-    steps:
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(vars) }}
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(secrets) }}       
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ github.event.inputs.parameters }}    
       - name: Running playbook to create namespace
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} -vvvv
-  create-service-principal:
-    name: "create-service-principal"
-    runs-on: [ self-hosted, azure ]
-    needs: [create-namespace]
-    environment: dev-azure
-    steps:
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(vars) }}
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(secrets) }}       
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ github.event.inputs.parameters }}    
       - name: Running playbook to create service principal
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.SP_PLAYBOOK }} -vvvv
   create-database:
     name: "create-database"
-    runs-on: [ self-hosted, azure ]
-    needs: [create-service-principal]
+    runs-on: runner-azure
+    needs: [create-namespace-and-serviceprincipal]
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -138,14 +108,21 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}    
+      - name: Checkout Azure DevOps repo
+        run: |
+          rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          git checkout ${{ vars.BRANCH }}
+          echo "Cloned Azure DevOps repository"
       - name: Running playbook to create database
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.DATABASE_PLAYBOOK }} -vvvv
   create-storage:
     name: "create-storage"
-    runs-on: [ self-hosted, azure ]
-    needs: [create-service-principal]
+    runs-on: runner-azure
+    needs: [create-namespace-and-serviceprincipal]
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -157,14 +134,21 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}    
+      - name: Checkout Azure DevOps repo
+        run: |
+          rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          git checkout ${{ vars.BRANCH }}
+          echo "Cloned Azure DevOps repository"          
       - name: Running playbook to create storage
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.STORAGE_PLAYBOOK }} -vvvv
   create-keyvault:
     name: "create-keyvault"
-    runs-on: [ self-hosted, azure ]
-    needs: [create-service-principal]
+    runs-on: runner-azure
+    needs: [create-namespace-and-serviceprincipal]
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -176,13 +160,20 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}    
+      - name: Checkout Azure DevOps repo
+        run: |
+          rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          git checkout ${{ vars.BRANCH }}
+          echo "Cloned Azure DevOps repository"          
       - name: Running playbook to create keyvault
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.KEYVAULT_PLAYBOOK }} -vvvv     
   generate-network:
     name: "generate-network"
-    runs-on: [ self-hosted, azure ]
+    runs-on: runner-azure
     needs: [create-keyvault, create-storage, create-database]
     environment: dev-azure
     steps:
