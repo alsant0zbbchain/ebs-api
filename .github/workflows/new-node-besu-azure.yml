@@ -195,7 +195,7 @@ jobs:
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.KEYVAULT_PLAYBOOK }} -vvvv   
-  create-keys:
+  deploy-node:
     name: "create-keys"
     runs-on: runner-azure
     needs: [create-keyvault, create-storage, create-database]
