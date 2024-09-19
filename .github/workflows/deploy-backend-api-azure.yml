@@ -15,7 +15,7 @@ on:
 jobs:
   check-required-env-variables:
     name: "required-env-variables"
-    runs-on: [ self-hosted, azure ]
+    runs-on: runner-azure
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -27,10 +27,6 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}
-      - name: Print envs - test
-        run: |
-          echo "Printing all environment variables:"
-          env
       - name: Checking APP_ID
         if: ${{ env.APP_ID == '' }} 
         uses: actions/github-script@v3
@@ -152,9 +148,9 @@ jobs:
           script: |
               core.setFailed('VERSION_NUMBER is required')                                                              
                 
-  checkout-ansible-pipelines:
-    name: "checkout-ansible-pipelines"
-    runs-on: [ self-hosted, azure ]
+  deploy-backend-api:
+    name: "deploy-backend-api"
+    runs-on: runner-azure
     needs: [check-required-env-variables]
     environment: dev-azure
     steps:
@@ -179,22 +175,6 @@ jobs:
           tokenPrefix: '${'
           tokenSuffix: '}'
           files: '["**/infra-requirements.yaml"]'
-
-  deploy-backend-api:
-    name: "deploy-backend-api"
-    runs-on: [ self-hosted, azure ]
-    needs: [checkout-ansible-pipelines]
-    environment: dev-azure
-    steps:
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(vars) }}
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(secrets) }}       
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ github.event.inputs.parameters }}    
       - name: Installing collection
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
