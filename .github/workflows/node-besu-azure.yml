@@ -113,7 +113,7 @@ jobs:
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="deploy,login" -vvvv 
-      - name: Running playbook to deploy node
+      - name: Running playbook to deploy blockscout
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.BLOCKSCOUT_PLAYBOOK }} --tags="release" -vvvv
