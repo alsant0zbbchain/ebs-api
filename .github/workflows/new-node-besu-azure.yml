@@ -15,7 +15,7 @@ on:
 jobs:
   check-required-env-variables:
     name: "required-env-variables"
-    runs-on: [ self-hosted, azure ]
+    runs-on: runner-azure
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -87,9 +87,9 @@ jobs:
         with:
           script: |
               core.setFailed('VALIDATORS_DATA is required')                            
-  checkout-anisble-pipelines:
-    name: "checkout-ansible-pipelines"
-    runs-on: [ self-hosted, azure ]
+  create-namespace-and-serviceprincipal:
+    name: "create-namespace-and-serviceprincipal"
+    runs-on: runner-azure
     needs: [check-required-env-variables]
     environment: dev-azure
     steps:
@@ -108,28 +108,15 @@ jobs:
           git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           git checkout ${{ vars.BRANCH }}
-          echo "Cloned Azure DevOps repository"
-      - name: Checkout Azure Besu DevOps repo
+          echo "Cloned Azure DevOps repository"                      
+      - name: Running playbook to create service principal
         run: |
-          rm -rf ${{ vars.BESU_REPO_PATH }}
-          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.BESU_REPO_URL }}
-          cd ${{ vars.BESU_REPO_PATH }}
-          git checkout ${{ vars.BRANCH }}
-          echo "Cloned Azure DevOps repository"   
-      - uses: cschleiden/replace-tokens@v1
-        with:
-          tokenPrefix: '${'
-          tokenSuffix: '}'
-          files: '["**/infra-requirements.yaml"]'  
-      - name: installing requirements
-        run: |
-          cd ${{ vars.BESU_REPO_PATH }}
-          ansible-galaxy collection install -r infra-requirements.yaml
-          echo "Requirements installed"                     
-  create-namespace:
-    name: "create-namespace"
-    runs-on: [ self-hosted, azure ]
-    needs: [checkout-anisble-pipelines]
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.SP_PLAYBOOK }} -vvvv
+  create-database:
+    name: "create-database"
+    runs-on: runner-azure
+    needs: [create-namespace-and-serviceprincipal]
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -145,48 +132,15 @@ jobs:
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} -vvvv
-  create-service-principal:
-    name: "create-service-principal"
-    runs-on: [ self-hosted, azure ]
-    needs: [create-namespace]
-    environment: dev-azure
-    steps:
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(vars) }}
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(secrets) }}       
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ github.event.inputs.parameters }}    
-      - name: Running playbook to create service principal
-        run: |
-          cd ${{ vars.FOUNDATION_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.SP_PLAYBOOK }} -vvvv
-  create-database:
-    name: "create-database"
-    runs-on: [ self-hosted, azure ]
-    needs: [create-service-principal]
-    environment: dev-azure
-    steps:
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(vars) }}
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(secrets) }}       
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ github.event.inputs.parameters }}    
+          secrets: ${{ github.event.inputs.parameters }}              
       - name: Running playbook to create database
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.DATABASE_PLAYBOOK }} -vvvv
   create-storage:
     name: "create-storage"
-    runs-on: [ self-hosted, azure ]
-    needs: [create-service-principal]
+    runs-on: runner-azure
+    needs: [create-namespace-and-serviceprincipal]
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -198,14 +152,19 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}    
+      - name: Running playbook to create namespace
+        run: |
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} -vvvv
+          secrets: ${{ github.event.inputs.parameters }}              
       - name: Running playbook to create storage
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.STORAGE_PLAYBOOK }} -vvvv
   create-keyvault:
     name: "create-keyvault"
-    runs-on: [ self-hosted, azure ]
-    needs: [create-service-principal]
+    runs-on: runner-azure
+    needs: [create-namespace-and-serviceprincipal]
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -217,13 +176,18 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}    
+      - name: Running playbook to create namespace
+        run: |
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} -vvvv
+          secrets: ${{ github.event.inputs.parameters }}              
       - name: Running playbook to create keyvault
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.KEYVAULT_PLAYBOOK }} -vvvv   
   create-keys:
     name: "create-keys"
-    runs-on: [ self-hosted, azure ]
+    runs-on: runner-azure
     needs: [create-keyvault, create-storage, create-database]
     environment: dev-azure
     steps:
@@ -236,84 +200,40 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}    
-      - name: Running playbook to create foundation components
+      - name: Checkout Azure Besu DevOps repo
+        run: |
+          rm -rf ${{ vars.BESU_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.BESU_REPO_URL }}
+          cd ${{ vars.BESU_REPO_PATH }}
+          git checkout ${{ vars.BRANCH }}
+          echo "Cloned Azure DevOps repository"             
+      - uses: cschleiden/replace-tokens@v1
+        with:
+          tokenPrefix: '${'
+          tokenSuffix: '}'
+          files: '["**/infra-requirements.yaml"]'  
+      - name: installing requirements
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
-          cat infra-requirements.yaml        
+          ansible-galaxy collection install -r infra-requirements.yaml
+          echo "Requirements installed"          
+      - name: Running playbook to create keys
+        run: |
+          cd ${{ vars.BESU_REPO_PATH }} 
           ansible-playbook -i inventories/hosts.yaml ${{ vars.NEW_BESU_NODE_PLAYBOOK }} --tags="release,login" -vvvv
-  create-foundation-components:
-    name: "create-foundation-components"
-    runs-on: [ self-hosted, azure ]
-    needs: [create-keys]
-    environment: dev-azure
-    steps:
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(vars) }}
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(secrets) }}       
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ github.event.inputs.parameters }}    
       - name: Running playbook to create foundation components
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
           ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="release,login" -vvvv  
-  expose-bootnode:
-    name: "expose-bootnode"
-    runs-on: [ self-hosted, azure ]
-    needs: [create-foundation-components]
-    environment: dev-azure
-    steps:
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(vars) }}
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(secrets) }}       
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ github.event.inputs.parameters }}    
+      - name: Running playbook to boot node
+        run: |
+          cd ${{ vars.BESU_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.BOOTNODES_PLAYBOOK }} --tags="deploy,login" -vvvv    
       - name: Running playbook to deploy node
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.BOOTNODES_PLAYBOOK }} --tags="deploy,login" -vvvv                  
-  deploy-node:
-    name: "deploy-node"
-    runs-on: [ self-hosted, azure ]
-    needs: [expose-bootnode]
-    environment: dev-azure
-    steps:
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(vars) }}
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(secrets) }}       
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ github.event.inputs.parameters }}    
-      - name: Running playbook to deploy node
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="deploy,login" -vvvv    
+      - name: Running playbook to validator node
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="deploy,login" -vvvv     
-  validator-node:
-    name: "validator-node"
-    runs-on: [ self-hosted, azure ]
-    needs: [deploy-node]
-    environment: dev-azure
-    steps:
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(vars) }}
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ toJSON(secrets) }}       
-      - uses: oNaiPs/secrets-to-env-action@v1
-        with:
-          secrets: ${{ github.event.inputs.parameters }}    
-      - name: Running playbook to deploy node
-        run: |
-          cd ${{ vars.BESU_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.NEW_BESU_VALIDATOR_PLAYBOOK  }} --tags="release" -vvvv
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.NEW_BESU_VALIDATOR_PLAYBOOK  }} --tags="release" -vvvv                               
