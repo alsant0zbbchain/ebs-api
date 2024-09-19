@@ -66,11 +66,6 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}    
-      - uses: cschleiden/replace-tokens@v1
-        with:
-          tokenPrefix: '${'
-          tokenSuffix: '}'
-          files: '["**/infra-requirements.yaml"]'
       - name: Checkout besu repo
         run: |
           rm -rf ${{ vars.BESU_REPO_PATH }}
@@ -78,6 +73,11 @@ jobs:
           cd ${{ vars.BESU_REPO_PATH }}
           git checkout ${{ vars.BRANCH }}
           echo "Cloned Azure DevOps repository" 
+      - uses: cschleiden/replace-tokens@v1
+        with:
+          tokenPrefix: '${'
+          tokenSuffix: '}'
+          files: '["**/infra-requirements.yaml"]'
       - name: Running playbook to drop explorer
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
