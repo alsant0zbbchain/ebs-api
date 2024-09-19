@@ -69,8 +69,8 @@ jobs:
         with:
           script: |
               core.setFailed('BOOTNODE is required')                                              
-  create-foundation:
-    name: "checkout-ansible-pipelines"
+  deploy-node:
+    name: "deploy-node"
     runs-on: runner-azure
     needs: [check-required-env-variables]
     environment: dev-azure
