@@ -109,6 +109,10 @@ jobs:
           cd ${{ vars.FOUNDATION_REPO_PATH }}
           git checkout ${{ vars.BRANCH }}
           echo "Cloned Azure DevOps repository"                      
+      - name: Running playbook to create namespace
+        run: |
+          cd ${{ vars.FOUNDATION_REPO_PATH }}
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} -vvvv          
       - name: Running playbook to create service principal
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
@@ -128,11 +132,13 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}    
-      - name: Running playbook to create namespace
+      - name: Checkout Azure Foundation DevOps repo
         run: |
+          rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
           cd ${{ vars.FOUNDATION_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} -vvvv
-          secrets: ${{ github.event.inputs.parameters }}              
+          git checkout ${{ vars.BRANCH }}
+          echo "Cloned Azure DevOps repository"                 
       - name: Running playbook to create database
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
@@ -152,11 +158,13 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}    
-      - name: Running playbook to create namespace
+      - name: Checkout Azure Foundation DevOps repo
         run: |
+          rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
           cd ${{ vars.FOUNDATION_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} -vvvv
-          secrets: ${{ github.event.inputs.parameters }}              
+          git checkout ${{ vars.BRANCH }}
+          echo "Cloned Azure DevOps repository"             
       - name: Running playbook to create storage
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
@@ -176,11 +184,13 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ github.event.inputs.parameters }}    
-      - name: Running playbook to create namespace
+      - name: Checkout Azure Foundation DevOps repo
         run: |
+          rm -rf ${{ vars.FOUNDATION_REPO_PATH }}
+          git clone https://$(echo $AZURE_GIT_ACCESS_TOKEN)@${{ vars.FOUNDATION_REPO_URL }}
           cd ${{ vars.FOUNDATION_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.NAMESPACE_PLAYBOOK }} -vvvv
-          secrets: ${{ github.event.inputs.parameters }}              
+          git checkout ${{ vars.BRANCH }}
+          echo "Cloned Azure DevOps repository"              
       - name: Running playbook to create keyvault
         run: |
           cd ${{ vars.FOUNDATION_REPO_PATH }}
