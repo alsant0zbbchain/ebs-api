@@ -135,12 +135,6 @@ jobs:
         with:
           script: |
               core.setFailed('VERSION_NAME is required')      
-      - name: Checking VERSION_NUMBER
-        if: ${{ env.VERSION_NUMBER == '' }} 
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('VERSION_NUMBER is required')                                                                                        
                 
   update-backend-api:
     name: "update-backend-api"
