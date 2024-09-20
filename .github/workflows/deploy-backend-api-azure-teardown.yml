@@ -37,12 +37,12 @@ jobs:
         with:
           script: |
               core.setFailed('APP_ID is required')
-      - name: Checking APP_VARIABLES
-        if: ${{ env.APP_VARIABLES == '' }} 
+      - name: Checking API_VARIABLES
+        if: ${{ env.API_VARIABLES == '' }} 
         uses: actions/github-script@v3
         with:
           script: |
-              core.setFailed('APP_VARIABLES is required')
+              core.setFailed('API_VARIABLES is required')
       - name: Checking DEPLOY_ID
         if: ${{ env.DEPLOY_ID == '' }} 
         uses: actions/github-script@v3
