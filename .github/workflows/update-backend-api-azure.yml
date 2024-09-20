@@ -81,24 +81,6 @@ jobs:
         with:
           script: |
               core.setFailed('NETWORK_ID is required')
-      - name: Checking KEYCLOAK_REALM
-        if: ${{ env.KEYCLOAK_REALM == '' }} 
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('KEYCLOAK_REALM is required')
-      - name: Checking KEYCLOAK_RESOURCE
-        if: ${{ env.KEYCLOAK_RESOURCE == '' }} 
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('KEYCLOAK_RESOURCE is required')
-      - name: Checking KEYCLOAK_URL
-        if: ${{ env.KEYCLOAK_URL == '' }} 
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('KEYCLOAK_URL is required')
       - name: Checking NODE_ID
         if: ${{ env.NODE_ID == '' }} 
         uses: actions/github-script@v3
