@@ -73,12 +73,6 @@ jobs:
         with:
           script: |
               core.setFailed('NETWORK_ID is required')
-      - name: Checking NETWORK_OWNER
-        if: ${{ env.NETWORK_OWNER == '' }} 
-        uses: actions/github-script@v3
-        with:
-          script: |
-              core.setFailed('NETWORK_OWNER is required')
       - name: Checking KEYCLOAK_REALM
         if: ${{ env.KEYCLOAK_REALM == '' }} 
         uses: actions/github-script@v3
