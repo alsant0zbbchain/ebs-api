@@ -1,0 +1,29 @@
+name: Dummy
+run-name: ${{ inputs.identifier }}
+
+on:
+  workflow_dispatch:
+    inputs:   
+      identifier:
+        description: 'Variable that represents the release identifier'
+        required: true
+        type: string  
+      parameters:
+        description: 'Variables in json wrapped'
+        required: true
+
+jobs:
+  check-required-env-variables:
+    name: "required-env-variables"
+    runs-on: runner-azure
+    environment: dev-azure
+    steps:
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(vars) }}
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}       
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ github.event.inputs.parameters }}
