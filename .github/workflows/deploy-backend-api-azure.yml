@@ -170,4 +170,4 @@ jobs:
       - name: Deploy API
         run: |
           cd ${{ vars.BESU_REPO_PATH }}
-          ansible-playbook -i inventories/hosts.yaml ${{ vars.BESU_NODE_PLAYBOOK }} --tags="login,api_deploy" -vvvv
+          ansible-playbook -i inventories/hosts.yaml ${{ vars.DEPLOY_API_PLAYBOOK }} --tags="login,api_deploy" -vvvv
