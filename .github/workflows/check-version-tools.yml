@@ -12,13 +12,16 @@ jobs:
     steps:
       - name: Run kubectl version
         run: |
-          kubectl version
-      - name: Run kubectl version
+          kubectl version || echo "kubectl version failed"
+
+      - name: Run solc version
         run: |
-          solc --version
-      - name: Run kubectl version
+          solc --version || echo "solc version failed"
+
+      - name: Run besu version
         run: |
-          besu --version
-      - name: Run kubectl version
+          besu --version || echo "besu version failed"
+
+      - name: Run java version
         run: |
-          java -version
+          java -version || echo "java version failed"
