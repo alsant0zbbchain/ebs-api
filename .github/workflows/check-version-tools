@@ -1,0 +1,24 @@
+name: CheckVersionsTools
+run-name: ${{ inputs.identifier }}
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check-required-env-variables:
+    name: "required-env-variables"
+    runs-on: self-hosted
+    environment: dev-azure
+    steps:
+      - name: Run kubectl version
+        run: |
+          kubectl version
+      - name: Run kubectl version
+        run: |
+          solc --version
+      - name: Run kubectl version
+        run: |
+          besu --version
+      - name: Run kubectl version
+        run: |
+          java -version
