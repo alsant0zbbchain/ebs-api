@@ -15,7 +15,7 @@ on:
 jobs:
   check-required-env-variables:
     name: "required-env-variables"
-    runs-on: runner-azure
+    runs-on: self-hosted
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
