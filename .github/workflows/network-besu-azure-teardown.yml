@@ -16,8 +16,6 @@ jobs:
   check-required-env-variables:
     name: "required-env-variables"
     runs-on: runner-azure
-    container:
-      image: containerregistrysth.azurecr.io/azagent:14438
     environment: dev-azure
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1
@@ -56,8 +54,6 @@ jobs:
   drop-explorer:
     name: "drop-explorer"
     runs-on: runner-azure
-    container:
-      image: containerregistrysth.azurecr.io/azagent:14438
     needs: [check-required-env-variables]
     environment: dev-azure
     steps:
@@ -90,8 +86,6 @@ jobs:
   drop-storage:
     name: "drop-storage"
     runs-on: runner-azure
-    container:
-      image: containerregistrysth.azurecr.io/azagent:14438
     needs: [check-required-env-variables]
     environment: dev-azure
     steps:
@@ -118,8 +112,6 @@ jobs:
   drop-database:
     name: "drop-database"
     runs-on: runner-azure
-    container:
-      image: containerregistrysth.azurecr.io/azagent:14438
     needs: [check-required-env-variables]
     environment: dev-azure
     steps:
@@ -146,8 +138,6 @@ jobs:
   drop-keyvault:
     name: "drop-keyvault"
     runs-on: runner-azure
-    container:
-      image: containerregistrysth.azurecr.io/azagent:14438
     needs: [check-required-env-variables]
     environment: dev-azure
     steps:
@@ -181,8 +171,6 @@ jobs:
   drop-service-principal:
     name: "drop-service-principal"
     runs-on: runner-azure
-    container:
-      image: containerregistrysth.azurecr.io/azagent:14438
     needs: [drop-explorer, drop-storage, drop-database, drop-keyvault]
     environment: dev-azure
     steps:
@@ -210,8 +198,6 @@ jobs:
   drop-namespace:
     name: "drop-namespace"
     runs-on: runner-azure
-    container:
-      image: containerregistrysth.azurecr.io/azagent:14438
     needs: [drop-service-principal]
     environment: dev-azure
     steps:
